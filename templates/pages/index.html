@@ -16,14 +16,14 @@
 
   <main>
     <div class="notice-banner" role="status" id="notice-banner">
-      <span>hi strangers! nothing here works as of yet!</span>
+      <span>hi strangers! nothing here works as of yet! this is where i am going to leave whatever Nahid was and is like an open book for people that are interested in just knowing because and just because, also this app works better on laptop i think</span>
       <button class="notice-dismiss" id="notice-dismiss" type="button">ok picasso</button>
     </div>
     <section class="hero-shelves">
       <div class="dev-box">
         <div class="dev-box-header">
           <span class="dev-box-title">The Library</span>
-          <span class="dev-box-subtitle">Things gathered over time.</span>
+          <span class="dev-box-subtitle">stuff and books we gathered over time. 400+ books and personal reviews</span>
         </div>
         <div class="dev-box-previews" id="dev-previews"></div>
       </div>
@@ -70,11 +70,11 @@
 
   <div class="modal-overlay" id="modal-overlay" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <h2 id="modal-title">Quick Check</h2>
-      <h2>A jeni shqiptarët e mi të preferuar?</h2>
+      <h2 id="modal-title">Hey</h2>
+      <h2>do you need pistol?</h2>
       <div class="modal-actions">
-        <button type="button" class="modal-btn" data-redirect="yes">Yes</button>
-        <button type="button" class="modal-btn" data-redirect="no">No</button>
+        <button type="button" class="modal-btn" data-redirect="yes">yes</button>
+        <button type="button" class="modal-btn" data-redirect="no">no</button>
       </div>
     </div>
   </div>
@@ -90,7 +90,8 @@
       }
 
       const modalOverlay = document.getElementById("modal-overlay");
-      const redirectUrl = "https://youtu.be/QI8VrXkffcg?si=6j21FCelD-ZuqAAy";
+      const redirectYesUrl = "https://youtu.be/PV8CEY4LF_0?si=RMoG3DcTCtrea2dL";
+      const redirectNoUrl = "https://youtu.be/5-rbSNzU_b8?si=4T8GeueMYTKN-825";
       if (modalOverlay) {
         const closeModal = function () {
           modalOverlay.classList.remove("is-visible");
@@ -105,7 +106,8 @@
         modalOverlay.addEventListener("click", function (event) {
           const target = event.target;
           if (target && target.classList.contains("modal-btn")) {
-            window.location.href = redirectUrl;
+            const choice = target.getAttribute("data-redirect");
+            window.location.href = choice === "no" ? redirectNoUrl : redirectYesUrl;
             return;
           }
           if (target === modalOverlay) {
