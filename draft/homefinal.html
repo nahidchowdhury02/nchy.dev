@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Library</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    header {
+      background-color: rgba(51, 51, 51, 0.212);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      padding: 1rem;
+      text-align: center;
+    }
+    nav a {
+      display: inline-block;
+      background-color: #ffffff;
+      color: #333;
+      text-decoration: none;
+      margin: 0 10px;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    nav a:hover {
+      background-color: #333;
+      color: white;
+    }
+    main {
+      padding: 2rem;
+    }
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .book {
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .book-image {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 150%; /* adjust for your cover aspect ratio */
+    }
+    .book-image img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .book:hover img {
+      transform: scale(1.05);
+    }
+    .book-info {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      padding: 1rem;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      overflow-y: auto;
+    }
+    .book:hover .book-info {
+      opacity: 1;
+    }
+    .book-info h3 {
+      margin-top: 0;
+    }
+    .book-info::-webkit-scrollbar {
+      width: 6px;
+    }
+    .book-info::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 3px;
+    }
+    footer {
+      background-color: rgba(19, 48, 59, 0.815);
+      color: rgba(255, 255, 255, 0.295);
+      text-align: center;
+      padding: 0.5rem;
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      border-radius: 15px;
+      width: 50%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ARCHAIC SHELVES</h1>
+  </header>
+
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Recommendation</a>
+    <a href="#">Search</a>
+    <a href="#">Fun</a>
+  </nav>
+
+  <main>
+    <h2>Featured Books</h2>
+    <div class="book-grid">
+      
+      <div class="book">
+        <div class="book-image">
+          <img src="images/new-jim-crow.jpg" alt="The New Jim Crow">
+          <div class="book-info">
+            <h3>The New Jim Crow</h3>
+            <p>by Michelle Alexander</p>
+            <p>A powerful examination of racial injustice in America’s criminal justice system.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="book">
+        <div class="book-image">
+          <img src="images/glass-palace.jpg" alt="The Glass Palace">
+          <div class="book-info">
+            <h3>The Glass Palace</h3>
+            <p>by Amitav Ghosh</p>
+            <p>A multi-generational saga set in British Burma, exploring history, love, and loss.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="book">
+        <div class="book-image">
+          <img src="images/assassinations.jpg" alt="Between Assassinations">
+          <div class="book-info">
+            <h3>Between Assassinations</h3>
+            <p>by Aravind Adiga</p>
+            <p>A dark and vivid look at contemporary India through the eyes of its characters.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repeat similar blocks for other books -->
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 My Library. All rights reserved.
+  </footer>
+</body>
+</html>

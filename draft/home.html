@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        header {
+            background-color: rgba(51, 51, 51, 0.212);
+            /* transparent overlay */
+            color: white;
+            padding: 1rem 1rem;
+            text-align: center;
+        }
+
+        nav {
+            background-color: rgba(255, 255, 255, 0);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav a {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .book {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease;
+        }
+
+        .book:hover {
+            transform: translateY(-5px);
+        }
+
+        footer {
+            background-color: rgba(19, 48, 59, 0.815);
+            color: rgba(255, 255, 255, 0.295);
+            text-align: center;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            position: fixed;
+            left: 50%;        
+            bottom: 0;
+            transform: translateX(-50%);
+            border-radius: 15px;
+            width: 50%;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>ARCHAIC SHELVES</h1>
+    </header>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Recommendation</a>
+        <a href="#">Search</a>
+        <a href="#">Fun</a>
+    </nav>
+
+    <main>
+        <h2>Featured Books</h2>
+
+        <div class="book-grid">
+            <div class="book">
+                <h3>The New Jim Crow</h3>
+                <p>by Michelle Alexander</p>
+                <p>A powerful examination of racial injustice in America’s criminal justice system.</p>
+            </div>
+
+            <div class="book">
+                <h3>The Glass Palace</h3>
+                <p>by Amitav Ghosh</p>
+                <p>A multi-generational saga set in British Burma, exploring history, love, and loss.</p>
+            </div>
+
+            <div class="book">
+                <h3>Between Assassinations</h3>
+                <p>by Aravind Adiga</p>
+                <p>A dark and vivid look at contemporary India through the eyes of its characters.</p>
+            </div>
+
+            <div class="book">
+                <h3>Possession</h3>
+                <p>by A.S. Byatt</p>
+                <p>A thrilling literary mystery that blends romance, history, and intellectual rivalry.</p>
+            </div>
+
+            <div class="book">
+                <h3>Alice’s Adventures in Wonderland & Through the Looking Glass</h3>
+                <p>by Lewis Carroll</p>
+                <p>Two whimsical and surreal tales of a girl’s adventures in bizarre worlds.</p>
+            </div>
+
+            <div class="book">
+                <h3>The Memory Keeper’s Daughter</h3>
+                <p>by Kim Edwards</p>
+                <p>A family drama about secrets, lies, and the choices that shape our lives.</p>
+            </div>
+
+            <div class="book">
+                <h3>The Artist of the Floating World</h3>
+                <p>by Kazuo Ishiguro</p>
+                <p>A poignant exploration of memory, regret, and the fading art world in post-WWII Japan.</p>
+            </div>
+
+            <div class="book">
+                <h3>The Ministry of Utmost Happiness</h3>
+                <p>by Arundhati Roy</p>
+                <p>A sweeping narrative that tackles politics, love, and tragedy in modern India.</p>
+            </div>
+
+            <div class="book">
+                <h3>Unaccustomed Earth</h3>
+                <p>by Jhumpa Lahiri</p>
+                <p>A collection of deeply emotional stories about the immigrant experience.</p>
+            </div>
+
+            <div class="book">
+                <h3>Brick Lane</h3>
+                <p>by Monica Ali</p>
+                <p>A compelling story of love, identity, and community in London’s East End.</p>
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2025 My Library. All rights reserved.
+    </footer>
+</body>
+
+</html>
