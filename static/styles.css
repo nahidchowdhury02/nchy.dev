@@ -10,7 +10,7 @@
 }
 
 body {
-  font-family: "Garamond", "Bookman Old Style", "Palatino Linotype", serif;
+  font-family: "Courier Prime", "IBM Plex Mono", "Courier New", monospace;
   margin: 0;
   color: var(--ink);
   background:
@@ -20,14 +20,14 @@ body {
 }
 
 header {
-  background: linear-gradient(180deg, rgba(78, 53, 33, 0.95), rgba(107, 74, 45, 0.9));
-  color: var(--paper);
+  background: #e0e0e0;
+  color: var(--ink);
   padding: 1.25rem 1rem;
   text-align: center;
   letter-spacing: 2px;
   text-transform: uppercase;
-  border-bottom: 3px solid rgba(176, 138, 60, 0.75);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border-bottom: 3px solid rgba(176, 138, 60, 0.35);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
 
 nav {
@@ -88,12 +88,12 @@ main {
   font-size: 1.4rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--paper);
+  color: var(--ink);
 }
 
 .dev-box-subtitle {
   font-size: 0.9rem;
-  color: rgba(243, 234, 215, 0.7);
+  color: var(--ink);
 }
 
 .dev-box-previews {
