@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>ARCHAIC SHELVES</h1>
+  </header>
+  <nav>
+    <a href="/">Home</a>
+    <a href="#">Recommendation</a>
+    <a href="#">Search</a>
+    <a href="#">Fun</a>
+  </nav>
+
+  <main>
+    <section class="hero-shelves">
+      <div class="dev-box">
+        <div class="dev-box-header">
+          <span class="dev-box-title">The Library Of</span>
+          <span class="dev-box-subtitle">Curated relics</span>
+        </div>
+        <div class="dev-box-previews" id="dev-previews"></div>
+      </div>
+      <div class="link-grid">
+        <article>
+          <h3>Github & Research</h3>
+          <p>Repos, experimental builds, and cited papers.</p>
+          <a href="#">Explore</a>
+        </article>
+        <article>
+          <h3>Public Gallery</h3>
+          <p>Sketchbooks, collages, and exhibit highlights.</p>
+          <a href="#">View</a>
+        </article>
+        <article>
+          <h3>Music Room</h3>
+          <p>Focus playlists, field recordings, night mixes.</p>
+          <a href="#">Listen</a>
+        </article>
+        <article>
+          <h3>Reading List</h3>
+          <p>Current pulls, annotations, and marginalia.</p>
+          <a href="#">Open</a>
+        </article>
+        <article>
+          <h3>Playground</h3>
+          <p>UI experiments, motion tests, oddities.</p>
+          <a href="#">Try</a>
+        </article>
+        <article>
+          <h3>Notes & Logs</h3>
+          <p>Build diaries, decisions, and changelogs.</p>
+          <a href="#">Read</a>
+        </article>
+        <article>
+          <h3>Contact</h3>
+          <p>Reach out for collabs, commissions, or swaps.</p>
+          <a href="mailto:keeper@archaicarts.com">Email</a>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("/static/data/books.json")
+        .then(response => response.json())
+        .then(books => {
+          const previews = document.getElementById("dev-previews");
+          const validBooks = books.filter(b => b.google_info && b.google_info !== "No result");
+          const previewSlice = validBooks.slice(0, 8);
+
+          previewSlice.forEach((book) => {
+            const title = book.original_title || "Untitled";
+            const cover = book.openlib_cover_url && book.openlib_cover_url !== "No cover available"
+              ? book.openlib_cover_url
+              : "/static/img/placeholder.png";
+            const preview = document.createElement("div");
+            preview.className = "preview-card";
+            preview.innerHTML = `<img src="${cover}" alt="${title}">`;
+            previews.appendChild(preview);
+          });
+
+          window.generateDetailPage = function (index) {
+            const book = books[index];
+            const info = book.google_info || {};
+            const html = `
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>${book.original_title || "Book Detail"}</title>
+                <style>
+                  body { font-family: Arial; padding: 2rem; line-height: 1.6; }
+                  img { max-width: 200px; margin-bottom: 1rem; }
+                  .field { margin-bottom: 1rem; }
+                </style>
+              </head>
+              <body>
+                <h1>${book.original_title || "Untitled"}</h1>
+                <img src="${book.openlib_cover_url !== "No cover available" ? book.openlib_cover_url : "/static/img/placeholder.png"}" alt="cover">
+                <div class="field"><strong>Authors:</strong> ${info.authors?.join(", ") || "Not available"}</div>
+                <div class="field"><strong>Subtitle:</strong> ${info.subtitle || "Not available"}</div>
+                <div class="field"><strong>Publisher:</strong> ${info.publisher || "Not available"}</div>
+                <div class="field"><strong>Published Date:</strong> ${info.publishedDate || "Not available"}</div>
+                <div class="field"><strong>Category:</strong> ${info.categories?.join(", ") || "Not available"}</div>
+                <div class="field"><strong>Rating:</strong> ${info.averageRating || "Not rated"}</div>
+                <div class="field"><strong>Ratings Count:</strong> ${info.ratingsCount || 0}</div>
+                <div class="field"><strong>Page Count:</strong> ${info.pageCount || "Unknown"}</div>
+                <div class="field"><strong>Language:</strong> ${info.language || "Unknown"}</div>
+                <div class="field"><strong>Description:</strong><br>${info.description || "No description available."}</div>
+              </body>
+              </html>
+            `;
+            const win = window.open("", "_blank");
+            win.document.write(html);
+            win.document.close();
+          };
+        })
+        .catch(error => {
+          console.error("Failed to load books:", error);
+        });
+    });
+  </script>
+
+  <footer>
+    &copy; .
+  </footer>
+</body>
+
+</html>
