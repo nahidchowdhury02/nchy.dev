@@ -17,7 +17,7 @@
   <main>
     <div class="notice-banner" role="status" id="notice-banner">
       <span>hi strangers! nothing here works as of yet! this is where i am going to leave whatever Nahid was and is like an open book for people that are interested in just knowing because and just because, also this app works better on laptop i think</span>
-      <button class="notice-dismiss" id="notice-dismiss" type="button">ok picasso</button>
+      <button class="notice-dismiss" id="notice-dismiss" type="button">ok-ay picasso</button>
     </div>
     <section class="hero-shelves">
       <div class="dev-box">
@@ -71,7 +71,7 @@
   <div class="modal-overlay" id="modal-overlay" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <h2 id="modal-title">Hey</h2>
-      <h2>do you need pistol?</h2>
+      <h2>do you need a pistol?</h2>
       <div class="modal-actions">
         <button type="button" class="modal-btn" data-redirect="yes">yes</button>
         <button type="button" class="modal-btn" data-redirect="no">no</button>
@@ -90,8 +90,7 @@
       }
 
       const modalOverlay = document.getElementById("modal-overlay");
-      const redirectYesUrl = "https://youtu.be/PV8CEY4LF_0?si=RMoG3DcTCtrea2dL";
-      const redirectNoUrl = "https://youtu.be/5-rbSNzU_b8?si=4T8GeueMYTKN-825";
+      const redirectUrl = "https://youtu.be/PV8CEY4LF_0?si=RMoG3DcTCtrea2dL";
       if (modalOverlay) {
         const closeModal = function () {
           modalOverlay.classList.remove("is-visible");
@@ -106,8 +105,7 @@
         modalOverlay.addEventListener("click", function (event) {
           const target = event.target;
           if (target && target.classList.contains("modal-btn")) {
-            const choice = target.getAttribute("data-redirect");
-            window.location.href = choice === "no" ? redirectNoUrl : redirectYesUrl;
+            window.location.href = redirectUrl;
             return;
           }
           if (target === modalOverlay) {
