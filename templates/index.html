@@ -15,6 +15,10 @@
  
 
   <main>
+    <div class="notice-banner" role="status" id="notice-banner">
+      <span>Dr. Who ? nothing here works as of yet!</span>
+      <button class="notice-dismiss" id="notice-dismiss" type="button">ok picasso</button>
+    </div>
     <section class="hero-shelves">
       <div class="dev-box">
         <div class="dev-box-header">
@@ -65,6 +69,14 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const dismiss = document.getElementById("notice-dismiss");
+      const banner = document.getElementById("notice-banner");
+      if (dismiss && banner) {
+        dismiss.addEventListener("click", function () {
+          banner.remove();
+        });
+      }
+
       fetch("/static/data/books.json")
         .then(response => response.json())
         .then(books => {
