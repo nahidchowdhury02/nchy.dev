@@ -1,69 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Books</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body>
-  <header>
-    <h1>Books Admin</h1>
-  </header>
-
-  <main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <p><strong>{{ category|upper }}</strong>: {{ message }}</p>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <nav>
-      <a href="{{ url_for('admin.content') }}">Dashboard</a>
-      <a href="{{ url_for('admin.books') }}">Books</a>
-      <a href="{{ url_for('admin.gallery') }}">Gallery</a>
-      <a href="/">Public Home</a>
-      <form method="post" action="{{ url_for('admin.logout') }}" style="display:inline-block; margin-left:8px;">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <button type="submit">Logout</button>
-      </form>
-    </nav>
-
-    <form method="get" action="{{ url_for('admin.books') }}">
-      <input type="text" name="q" value="{{ query }}" placeholder="Search title/author" />
-      <button type="submit">Search</button>
-    </form>
-
-    <p>Total shown: {{ books|length }}</p>
-
-    <table border="1" cellpadding="8" cellspacing="0" style="width:100%; background:#fff;">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author(s)</th>
-          <th>Year</th>
-          <th>Slug</th>
-          <th>Edit</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for book in books %}
-          <tr>
-            <td>{{ book.title }}</td>
-            <td>{{ book.author }}</td>
-            <td>{{ book.first_publish_year or '-' }}</td>
-            <td>{{ book.slug }}</td>
-            <td><a href="{{ url_for('admin.book_edit', book_id=book.id) }}">Edit</a></td>
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="5">No books found.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </main>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Books Ward</title><link rel="stylesheet" href="/static/styles.css" /></head>
+<body><header><h1>Books Ward</h1></header><main>
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
+<nav><a href="{{ url_for('admin.manage') }}">Hall</a><a href="{{ url_for('admin.books') }}">Books</a><a href="{{ url_for('admin.gallery') }}">Gallery</a><a href="{{ url_for('admin.notes') }}">Notes</a><a href="/">Home</a><form method="post" action="{{ url_for('admin.logout') }}" style="display:inline-block; margin-left:8px;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button type="submit">leave</button></form></nav>
+<form method="get" action="{{ url_for('admin.books') }}"><input type="text" name="q" value="{{ query }}" placeholder="seek title/author" /><button type="submit">seek</button></form>
+<p>shown: {{ books|length }}</p>
+<table border="1" cellpadding="8" cellspacing="0" style="width:100%; background:#fff;"><thead><tr><th>Title</th><th>Author(s)</th><th>Year</th><th>Slug</th><th>Edit</th></tr></thead><tbody>{% for book in books %}<tr><td>{{ book.title }}</td><td>{{ book.author }}</td><td>{{ book.first_publish_year or '-' }}</td><td>{{ book.slug }}</td><td><a href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a></td></tr>{% else %}<tr><td colspan="5">none found.</td></tr>{% endfor %}</tbody></table>
+</main></body></html>

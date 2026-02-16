@@ -9,3 +9,4 @@ Flask-Limiter
 pytest
 pytest-flask
 mongomock
+python-dotenv

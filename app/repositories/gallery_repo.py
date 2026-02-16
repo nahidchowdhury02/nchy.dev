@@ -13,7 +13,7 @@ class GalleryRepository:
         return self.collection is not None
 
     def list_published(self, category: str = "", limit: int = 20, cursor: str | None = None):
-        if not self.collection:
+        if self.collection is None:
             return [], None
 
         filters: dict[str, Any] = {"is_published": True}
@@ -35,7 +35,7 @@ class GalleryRepository:
         return [serialize_doc(doc) for doc in docs], next_cursor
 
     def list_admin(self, category: str = ""):
-        if not self.collection:
+        if self.collection is None:
             return []
 
         filters: dict[str, Any] = {}
@@ -46,7 +46,7 @@ class GalleryRepository:
         return [serialize_doc(doc) for doc in docs]
 
     def get_by_id(self, item_id: str):
-        if not self.collection:
+        if self.collection is None:
             return None
         object_id = maybe_object_id(item_id)
         if not object_id:
@@ -55,13 +55,13 @@ class GalleryRepository:
         return serialize_doc(doc)
 
     def insert_item(self, payload: dict[str, Any]):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
         result = self.collection.insert_one(payload)
         return self.get_by_id(str(result.inserted_id))
 
     def update_item(self, item_id: str, payload: dict[str, Any]):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
         object_id = maybe_object_id(item_id)
         if not object_id:
@@ -70,7 +70,7 @@ class GalleryRepository:
         return self.get_by_id(item_id)
 
     def delete_item(self, item_id: str):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
         object_id = maybe_object_id(item_id)
         if not object_id:
@@ -79,6 +79,6 @@ class GalleryRepository:
         return bool(result.deleted_count)
 
     def count_items(self) -> int:
-        if not self.collection:
+        if self.collection is None:
             return 0
         return self.collection.count_documents({})

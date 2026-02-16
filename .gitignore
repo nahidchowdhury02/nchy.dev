@@ -33,6 +33,12 @@ dist/
 .venv/
 venv/
 
+# Secrets
+.env
+.env.*
+password
+password.txt
+
 # OS/editor caches
 .DS_Store
 Thumbs.db

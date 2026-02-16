@@ -13,13 +13,13 @@ class AdminRepository:
         return self.collection is not None
 
     def get_by_username(self, username: str):
-        if not self.collection:
+        if self.collection is None:
             return None
         doc = self.collection.find_one({"username": username})
         return serialize_doc(doc)
 
     def get_by_id(self, user_id: str):
-        if not self.collection:
+        if self.collection is None:
             return None
         object_id = maybe_object_id(user_id)
         if not object_id:
@@ -28,7 +28,7 @@ class AdminRepository:
         return serialize_doc(doc)
 
     def touch_last_login(self, username: str):
-        if not self.collection:
+        if self.collection is None:
             return
         self.collection.update_one(
             {"username": username},
@@ -36,7 +36,7 @@ class AdminRepository:
         )
 
     def upsert_admin(self, username: str, password_hash: str):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
 
         now = datetime.now(timezone.utc)

@@ -1,30 +1,3 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notes & Logs</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body>
-  <header><h1>Notes & Logs</h1></header>
-  <main>
-    <p>Published notes and logs from MongoDB.</p>
-    <section class="link-grid">
-      {% for entry in entries %}
-        <article>
-          <h3>[{{ entry.kind|upper }}] {{ entry.title }}</h3>
-          <p>{{ entry.body }}</p>
-          <p><small>{{ entry.created_at }}</small></p>
-        </article>
-      {% else %}
-        <article><p>No published notes/logs yet.</p></article>
-      {% endfor %}
-    </section>
-    <nav>
-      <a href="/">back home</a>
-      <a href="/admin/notes">admin upload</a>
-    </nav>
-  </main>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Notes & Logs</title><link rel="stylesheet" href="/static/styles.css" /></head>
+<body><header><h1>Notes & Logs</h1></header><main><p>public ledger from Mongo.</p><section class="link-grid">{% for entry in entries %}<article><h3>[{{ entry.kind|upper }}] {{ entry.title }}</h3><p>{{ entry.body }}</p><p><small>{{ entry.created_at }}</small></p></article>{% else %}<article><p>no entries yet.</p></article>{% endfor %}</section><nav><a href="/">home</a><a href="/admin/notes">scribe</a></nav></main></body></html>

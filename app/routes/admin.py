@@ -39,7 +39,7 @@ def _audit_repo() -> AuditRepository:
 def _safe_next(next_path: str | None):
     if next_path and next_path.startswith("/") and not next_path.startswith("//"):
         return next_path
-    return url_for("admin.content")
+    return url_for("admin.manage")
 
 
 def _admin_actor() -> str:
@@ -97,16 +97,22 @@ def logout():
 @admin_bp.route("/")
 @require_admin
 def index():
-    return redirect(url_for("admin.content"))
+    return redirect(url_for("admin.manage"))
 
 
 @admin_bp.route("/content")
 @require_admin
 def content():
+    return redirect(url_for("admin.manage"))
+
+
+@admin_bp.route("/manage")
+@require_admin
+def manage():
     books_service = _books_service()
     gallery_service = _gallery_service()
     return render_template(
-        "admin/content.html",
+        "admin/manage/content.html",
         books_count=books_service.count_books(),
         gallery_count=gallery_service.count_items(),
         notes_count=_notes_service().count_entries(),
@@ -114,6 +120,7 @@ def content():
 
 
 @admin_bp.route("/books")
+@admin_bp.route("/manage/books")
 @require_admin
 def books():
     query = request.args.get("q", "").strip()
@@ -123,6 +130,7 @@ def books():
 
 
 @admin_bp.route("/notes", methods=["GET", "POST"])
+@admin_bp.route("/manage/notes", methods=["GET", "POST"])
 @require_admin
 def notes():
     notes_service = _notes_service()
@@ -141,7 +149,7 @@ def notes():
             flash(str(exc), "error")
 
     entries = notes_service.list_admin_entries(limit_raw="200")
-    return render_template("admin/notes.html", entries=entries)
+    return render_template("admin/manage/notes.html", entries=entries)
 
 
 @admin_bp.route("/books/<book_id>/edit", methods=["GET", "POST"])
@@ -176,6 +184,7 @@ def book_edit(book_id):
 
 
 @admin_bp.route("/gallery", methods=["GET", "POST"])
+@admin_bp.route("/manage/gallery", methods=["GET", "POST"])
 @require_admin
 def gallery():
     gallery_service = _gallery_service()

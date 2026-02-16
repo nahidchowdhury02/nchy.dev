@@ -8,7 +8,7 @@ class AuditRepository:
         self.collection = db.audit_logs if db is not None else None
 
     def log(self, actor: str, action: str, entity: str, entity_id: str = "", metadata: dict | None = None):
-        if not self.collection:
+        if self.collection is None:
             return
 
         self.collection.insert_one(

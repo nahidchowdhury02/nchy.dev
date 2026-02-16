@@ -16,7 +16,7 @@ class BooksRepository:
         return self.collection is not None
 
     def list_books(self, query: str = "", limit: int = 20, cursor: str | None = None):
-        if not self.collection:
+        if self.collection is None:
             return [], None
 
         filters: dict[str, Any] = {}
@@ -42,7 +42,7 @@ class BooksRepository:
         return [serialize_doc(doc) for doc in docs], next_cursor
 
     def list_previews(self, limit: int = 8):
-        if not self.collection:
+        if self.collection is None:
             return []
 
         docs = self.collection.find(
@@ -52,7 +52,7 @@ class BooksRepository:
         return [serialize_doc(doc) for doc in docs]
 
     def get_by_id_or_slug(self, id_or_slug: str):
-        if not self.collection:
+        if self.collection is None:
             return None
 
         filters: dict[str, Any]
@@ -66,7 +66,7 @@ class BooksRepository:
         return serialize_doc(doc)
 
     def get_by_id(self, book_id: str):
-        if not self.collection:
+        if self.collection is None:
             return None
         object_id = maybe_object_id(book_id)
         if not object_id:
@@ -75,7 +75,7 @@ class BooksRepository:
         return serialize_doc(doc)
 
     def update_book(self, book_id: str, update_fields: dict[str, Any]):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
 
         object_id = maybe_object_id(book_id)
@@ -89,7 +89,7 @@ class BooksRepository:
         return self.get_by_id(book_id)
 
     def upsert_by_original_title(self, original_title: str, payload: dict[str, Any]):
-        if not self.collection:
+        if self.collection is None:
             raise RuntimeError("Database unavailable")
 
         self.collection.update_one(
@@ -99,6 +99,6 @@ class BooksRepository:
         )
 
     def count_books(self) -> int:
-        if not self.collection:
+        if self.collection is None:
             return 0
         return self.collection.count_documents({})
