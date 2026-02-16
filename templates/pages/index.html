@@ -12,7 +12,6 @@
   <header>
     <h1>QUIET STACK OF N</h1>
   </header>
- 
 
   <main>
     <div class="notice-banner" role="status" id="notice-banner">
@@ -29,7 +28,7 @@
       </div>
       <div class="link-grid">
         <article>
-          <h3>Github & Research</h3>
+          <h3>Github &amp; Research</h3>
           <p>Work in progress, unfinished ideas, and papers worth keeping.</p>
           <a href="#">view</a>
         </article>
@@ -54,7 +53,7 @@
           <a href="#">try</a>
         </article>
         <article>
-          <h3>Notes & Logs</h3>
+          <h3>Notes &amp; Logs</h3>
           <p>Thoughts, changes, and quiet reasons for why something became what it is.</p>
           <a href="#">read</a>
         </article>
@@ -78,26 +77,28 @@
         });
       }
 
-      fetch("/static/data/books.json")
-        .then(response => response.json())
-        .then(books => {
-          const previews = document.getElementById("dev-previews");
-          const validBooks = books.filter(b => b.google_info && b.google_info !== "No result");
-          const previewSlice = validBooks.slice(0, 8);
+      const previews = document.getElementById("dev-previews");
+      const fallbackBooks = {{ preview_books|tojson }};
 
-          previewSlice.forEach((book) => {
-            const title = book.original_title || "Untitled";
-            const cover = book.openlib_cover_url && book.openlib_cover_url !== "No cover available"
-              ? book.openlib_cover_url
-              : "/static/img/placeholder.png";
-            const preview = document.createElement("div");
-            preview.className = "preview-card";
-            preview.innerHTML = `<img src="${cover}" alt="${title}">`;
-            previews.appendChild(preview);
-          });
+      function renderBooks(books) {
+        previews.innerHTML = "";
+        books.forEach((book) => {
+          const title = book.title || book.original_title || "Untitled";
+          const cover = book.cover_url || "/static/images/gallery-sketches.png";
+          const preview = document.createElement("div");
+          preview.className = "preview-card";
+          preview.innerHTML = `<img src="${cover}" alt="${title}">`;
+          previews.appendChild(preview);
+        });
+      }
+
+      fetch("/api/books?limit=8")
+        .then(response => response.json())
+        .then(payload => {
+          renderBooks(payload.items || []);
         })
-        .catch(error => {
-          console.error("Failed to load books:", error);
+        .catch(() => {
+          renderBooks(fallbackBooks || []);
         });
     });
   </script>

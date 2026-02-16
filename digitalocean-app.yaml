@@ -1,0 +1,50 @@
+name: nchydev-source
+services:
+  - name: web
+    environment_slug: python
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    run_command: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 15
+      period_seconds: 30
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 3
+    envs:
+      - key: SECRET_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: MONGODB_URI
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: MONGODB_DB_NAME
+        scope: RUN_AND_BUILD_TIME
+        value: archive
+      - key: CLOUDINARY_CLOUD_NAME
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: CLOUDINARY_API_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: CLOUDINARY_API_SECRET
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: SESSION_COOKIE_SECURE
+        scope: RUN_AND_BUILD_TIME
+        value: "1"
+      - key: SESSION_COOKIE_HTTPONLY
+        scope: RUN_AND_BUILD_TIME
+        value: "1"
+      - key: SESSION_COOKIE_SAMESITE
+        scope: RUN_AND_BUILD_TIME
+        value: Lax
+      - key: LOGIN_RATE_LIMIT
+        scope: RUN_AND_BUILD_TIME
+        value: 5 per minute
+      - key: RATELIMIT_STORAGE_URI
+        scope: RUN_AND_BUILD_TIME
+        value: memory://
+

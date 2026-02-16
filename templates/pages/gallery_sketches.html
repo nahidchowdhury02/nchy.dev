@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,10 +15,21 @@
     </section>
 
     <section class="gallery-sketches-shot-grid" aria-label="Sketches">
-      <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 01</span></article>
-      <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 02</span></article>
-      <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 03</span></article>
-      <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 04</span></article>
+      {% if items %}
+        {% for item in items %}
+          <article class="gallery-shot-card gallery-sketches-card">
+            {% if item.image_url %}
+              <img src="{{ item.image_url }}" alt="{{ item.title }}" class="gallery-sketches-image" loading="lazy" />
+            {% endif %}
+            <span class="gallery-sketches-label">{{ item.title or 'sketch' }}</span>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 01</span></article>
+        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 02</span></article>
+        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 03</span></article>
+        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 04</span></article>
+      {% endif %}
     </section>
 
     <div class="gallery-sketches-nav" role="navigation" aria-label="Sketches navigation">

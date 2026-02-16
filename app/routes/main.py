@@ -1,13 +1,24 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, jsonify, redirect, render_template, url_for
 
-from ..services.books import load_books, save_books
+from ..db import get_db
+from ..services.books_service import BooksService
+from ..services.gallery_service import GalleryService
 
 main_bp = Blueprint("main", __name__)
 
 
+def _books_service() -> BooksService:
+    return BooksService(get_db())
+
+
+def _gallery_service() -> GalleryService:
+    return GalleryService(get_db())
+
+
 @main_bp.route("/")
 def home():
-    return render_template("pages/index.html")
+    preview_books = _books_service().list_preview_books(limit=8)
+    return render_template("pages/index.html", preview_books=preview_books)
 
 
 @main_bp.route("/gallery")
@@ -17,40 +28,36 @@ def gallery():
 
 @main_bp.route("/gallery/sketches")
 def gallery_sketches():
-    return render_template("pages/gallery_sketches.html")
+    items, _ = _gallery_service().list_public_items(category="sketches", limit_raw="24")
+    return render_template("pages/gallery_sketches.html", items=items)
 
 
 @main_bp.route("/gallery/moments")
 def gallery_moments():
-    return render_template("pages/gallery_moments.html")
+    items, _ = _gallery_service().list_public_items(category="moments", limit_raw="24")
+    return render_template("pages/gallery_moments.html", items=items)
 
 
 @main_bp.route("/gallery/all")
 def gallery_all():
-    return render_template("pages/gallery_all.html")
+    items, _ = _gallery_service().list_public_items(category="all", limit_raw="24")
+    return render_template("pages/gallery_all.html", items=items)
 
 
 @main_bp.route("/edit", methods=["GET", "POST"])
 def edit():
-    books = load_books()
-    search_query = request.args.get("search", "").strip()
-    book_to_edit = None
+    return redirect(url_for("admin.books"))
 
-    if search_query:
-        for book in books:
-            if search_query.lower() in book["title"].lower():
-                book_to_edit = book
-                break
 
-    if request.method == "POST":
-        title = request.form["title"]
-        for book in books:
-            if book["title"] == title:
-                book["author"] = request.form["author"]
-                book["subtitle"] = request.form["subtitle"]
-                book["first_publish_year"] = int(request.form["first_publish_year"])
-                book["cover_url"] = request.form["cover_url"]
-                save_books(books)
-                return redirect("/edit?search=" + title)
+@main_bp.route("/healthz")
+def healthz():
+    db = get_db()
+    if db is None:
+        return jsonify({"status": "degraded", "database": "unconfigured"}), 503
 
-    return render_template("pages/edit.html", book=book_to_edit, query=search_query)
+    try:
+        db.command("ping")
+    except Exception as exc:
+        return jsonify({"status": "degraded", "database": "down", "error": str(exc)}), 503
+
+    return jsonify({"status": "ok", "database": "up"})

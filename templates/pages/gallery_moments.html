@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,16 +11,27 @@
     <section class="gallery-title-box">
       <p class="gallery-kicker">PUBLIC ARCHIVE</p>
       <h1>MOMENTS</h1>
-      <p class="gallery-subtitle">Temporary records and scenes. Placeholder slots are ready for final uploads.</p>
+      <p class="gallery-subtitle">Temporary records and scenes.</p>
     </section>
 
     <section class="gallery-detail-grid" aria-label="Moment placeholders">
-      <article class="gallery-detail-tile"><span>moment slot 01 - image coming soon</span></article>
-      <article class="gallery-detail-tile"><span>moment slot 02 - image coming soon</span></article>
-      <article class="gallery-detail-tile"><span>moment slot 03 - image coming soon</span></article>
-      <article class="gallery-detail-tile"><span>moment slot 04 - image coming soon</span></article>
-      <article class="gallery-detail-tile"><span>moment slot 05 - image coming soon</span></article>
-      <article class="gallery-detail-tile"><span>moment slot 06 - image coming soon</span></article>
+      {% if items %}
+        {% for item in items %}
+          <article class="gallery-detail-tile">
+            {% if item.image_url %}
+              <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy" />
+            {% endif %}
+            <span>{{ item.title or 'moment' }}</span>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="gallery-detail-tile"><span>moment slot 01 - image coming soon</span></article>
+        <article class="gallery-detail-tile"><span>moment slot 02 - image coming soon</span></article>
+        <article class="gallery-detail-tile"><span>moment slot 03 - image coming soon</span></article>
+        <article class="gallery-detail-tile"><span>moment slot 04 - image coming soon</span></article>
+        <article class="gallery-detail-tile"><span>moment slot 05 - image coming soon</span></article>
+        <article class="gallery-detail-tile"><span>moment slot 06 - image coming soon</span></article>
+      {% endif %}
     </section>
 
     <nav class="gallery-nav" aria-label="Moments navigation">
