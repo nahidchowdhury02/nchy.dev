@@ -105,6 +105,11 @@ class GalleryService:
             return "all"
         return normalized
 
+    def count_items(self) -> int:
+        if not self.repo.available():
+            return 0
+        return self.repo.count_items()
+
     def _serialize_item(self, item: dict | None):
         if not item:
             return None

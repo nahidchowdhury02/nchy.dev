@@ -10,7 +10,7 @@ def init_db(app):
     db_name = app.config.get("MONGODB_DB_NAME", "archive")
 
     if not uri:
-        app.logger.warning("MONGODB_URI is not set. Running in read-only fallback mode.")
+        app.logger.warning("MONGODB_URI is not set. MongoDB-backed features are unavailable.")
         app.extensions["mongo_client"] = None
         app.extensions["mongo_db"] = None
         return
@@ -49,3 +49,5 @@ def ensure_indexes(db):
     db.admin_users.create_index([("username", ASCENDING)], unique=True)
 
     db.audit_logs.create_index([("timestamp", DESCENDING)])
+    db.notes_logs.create_index([("created_at", DESCENDING)])
+    db.notes_logs.create_index([("is_published", ASCENDING)])

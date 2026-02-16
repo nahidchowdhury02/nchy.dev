@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from ..repositories.books_repo import BooksRepository
 from ..utils import ensure_unique_slug, extract_year, parse_positive_int, slugify
-
-BASE_DIR = Path(__file__).resolve().parents[2]
-FALLBACK_BOOKS_FILE = BASE_DIR / "static" / "data" / "books.json"
 
 
 class BooksService:
@@ -19,44 +14,28 @@ class BooksService:
     def list_public_books(self, query: str = "", limit_raw: str | None = None, cursor: str | None = None):
         limit = parse_positive_int(limit_raw, default=20, max_value=50)
 
-        if self.repo.available():
-            books, next_cursor = self.repo.list_books(query=query, limit=limit, cursor=cursor)
-            return [self._to_public_payload(book) for book in books], next_cursor
-
-        fallback_books = self._load_fallback_books()
-        return self._list_fallback_books(fallback_books, query, limit, cursor)
+        if not self.repo.available():
+            return [], None
+        books, next_cursor = self.repo.list_books(query=query, limit=limit, cursor=cursor)
+        return [self._to_public_payload(book) for book in books], next_cursor
 
     def get_public_book(self, id_or_slug: str):
-        if self.repo.available():
-            book = self.repo.get_by_id_or_slug(id_or_slug)
-            return self._to_public_payload(book)
-
-        for book in self._load_fallback_books():
-            if book["slug"] == id_or_slug or book["id"] == id_or_slug:
-                return self._to_public_payload(book)
-        return None
+        if not self.repo.available():
+            return None
+        book = self.repo.get_by_id_or_slug(id_or_slug)
+        return self._to_public_payload(book)
 
     def list_preview_books(self, limit: int = 8):
-        if self.repo.available():
-            docs = self.repo.list_previews(limit=limit)
-            return [self._to_preview_payload(doc) for doc in docs]
-
-        previews = [
-            self._to_preview_payload(book)
-            for book in self._load_fallback_books()
-            if book.get("cover_url")
-        ]
-        return previews[:limit]
+        if not self.repo.available():
+            return []
+        docs = self.repo.list_previews(limit=limit)
+        return [self._to_preview_payload(doc) for doc in docs]
 
     def list_admin_books(self, query: str = "", limit_raw: str | None = "100"):
         limit = parse_positive_int(limit_raw, default=100, max_value=200)
 
         if not self.repo.available():
-            books = self._load_fallback_books()
-            if query:
-                lowered = query.lower()
-                books = [book for book in books if lowered in book.get("title", "").lower()]
-            return [self._to_admin_payload(book) for book in books[:limit]]
+            return []
 
         docs, _ = self.repo.list_books(query=query, limit=limit)
         return [self._to_admin_payload(doc) for doc in docs]
@@ -140,6 +119,11 @@ class BooksService:
         }
         return normalized
 
+    def count_books(self) -> int:
+        if not self.repo.available():
+            return 0
+        return self.repo.count_books()
+
     def _to_preview_payload(self, book: dict[str, Any] | None):
         if not book:
             return None
@@ -176,43 +160,3 @@ class BooksService:
         payload = self._to_public_payload(book)
         payload["author"] = ", ".join(payload.get("authors") or [])
         return payload
-
-    def _load_fallback_books(self):
-        if not FALLBACK_BOOKS_FILE.exists():
-            return []
-
-        with FALLBACK_BOOKS_FILE.open("r", encoding="utf-8") as handle:
-            raw_books = json.load(handle)
-
-        used_slugs: set[str] = set()
-        normalized = []
-        for raw_book in raw_books:
-            book = self.normalize_source_book(raw_book, used_slugs=used_slugs)
-            book["id"] = book["slug"]
-            normalized.append(book)
-        return normalized
-
-    def _list_fallback_books(self, books, query: str, limit: int, cursor: str | None):
-        if query:
-            lowered = query.lower()
-            books = [
-                book
-                for book in books
-                if lowered in book.get("title", "").lower()
-                or lowered in book.get("original_title", "").lower()
-                or any(lowered in author.lower() for author in book.get("authors", []))
-            ]
-
-        start_index = 0
-        if cursor:
-            try:
-                start_index = max(0, int(cursor))
-            except ValueError:
-                start_index = 0
-
-        batch = books[start_index : start_index + limit]
-        next_cursor = None
-        if start_index + limit < len(books):
-            next_cursor = str(start_index + limit)
-
-        return [self._to_public_payload(book) for book in batch], next_cursor

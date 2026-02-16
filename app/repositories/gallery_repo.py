@@ -77,3 +77,8 @@ class GalleryRepository:
             return False
         result = self.collection.delete_one({"_id": object_id})
         return bool(result.deleted_count)
+
+    def count_items(self) -> int:
+        if not self.collection:
+            return 0
+        return self.collection.count_documents({})

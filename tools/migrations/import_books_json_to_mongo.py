@@ -89,7 +89,7 @@ def main():
                 {"original_title": original_title},
                 {
                     "$set": normalized,
-                    "$setOnInsert": {"created_at": created_at, "original_title": original_title},
+                    "$setOnInsert": {"created_at": created_at},
                 },
                 upsert=True,
             )

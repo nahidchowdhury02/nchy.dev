@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading List</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header><h1>Reading List</h1></header>
+  <main>
+    <p>Books currently in your MongoDB archive:</p>
+    <section class="link-grid">
+      {% for book in books %}
+        <article>
+          <h3>{{ book.title or book.original_title }}</h3>
+          <p>{{ (book.authors or [])|join(', ') }}</p>
+        </article>
+      {% else %}
+        <article><p>No books found in MongoDB yet.</p></article>
+      {% endfor %}
+    </section>
+    <nav><a href="/">back home</a></nav>
+  </main>
+</body>
+</html>

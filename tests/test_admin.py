@@ -12,7 +12,7 @@ def login(client):
 def test_admin_login_success(client):
     response = login(client)
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/admin/books")
+    assert response.headers["Location"].endswith("/admin/content")
 
 
 def test_admin_login_invalid_password(client):

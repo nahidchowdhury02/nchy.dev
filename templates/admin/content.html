@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Management</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Content Management</h1>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <p><strong>{{ category|upper }}</strong>: {{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <nav>
+      <a href="{{ url_for('admin.content') }}">Dashboard</a>
+      <a href="{{ url_for('admin.books') }}">Books</a>
+      <a href="{{ url_for('admin.gallery') }}">Gallery</a>
+      <a href="/">Public Home</a>
+      <form method="post" action="{{ url_for('admin.logout') }}" style="display:inline-block; margin-left:8px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit">Logout</button>
+      </form>
+    </nav>
+
+    <section class="link-grid">
+      <article>
+        <h3>Books</h3>
+        <p>Total books in MongoDB: <strong>{{ books_count }}</strong></p>
+        <a href="{{ url_for('admin.books') }}">Manage books</a>
+      </article>
+      <article>
+        <h3>Gallery</h3>
+        <p>Total gallery items in MongoDB: <strong>{{ gallery_count }}</strong></p>
+        <a href="{{ url_for('admin.gallery') }}">Manage gallery</a>
+      </article>
+    </section>
+
+    <p style="margin-top:1rem;">All admin edits are stored in MongoDB.</p>
+  </main>
+</body>
+</html>

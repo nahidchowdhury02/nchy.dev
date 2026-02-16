@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, redirect, render_template, url_for
 from ..db import get_db
 from ..services.books_service import BooksService
 from ..services.gallery_service import GalleryService
+from ..services.notes_service import NotesService
 
 main_bp = Blueprint("main", __name__)
 
@@ -15,6 +16,10 @@ def _gallery_service() -> GalleryService:
     return GalleryService(get_db())
 
 
+def _notes_service() -> NotesService:
+    return NotesService(get_db())
+
+
 @main_bp.route("/")
 def home():
     preview_books = _books_service().list_preview_books(limit=8)
@@ -24,6 +29,38 @@ def home():
 @main_bp.route("/gallery")
 def gallery():
     return render_template("pages/gallery.html")
+
+
+@main_bp.route("/github-research")
+def github_research():
+    return render_template("pages/github_research.html")
+
+
+@main_bp.route("/music")
+def music():
+    return render_template("pages/music.html")
+
+
+@main_bp.route("/reading")
+def reading():
+    books, _ = _books_service().list_public_books(limit_raw="50")
+    return render_template("pages/reading.html", books=books)
+
+
+@main_bp.route("/fun")
+def fun():
+    return render_template("pages/fun.html")
+
+
+@main_bp.route("/notes")
+def notes():
+    entries = _notes_service().list_public_entries(limit_raw="100")
+    return render_template("pages/notes.html", entries=entries)
+
+
+@main_bp.route("/contact")
+def contact():
+    return render_template("pages/contact.html")
 
 
 @main_bp.route("/gallery/sketches")

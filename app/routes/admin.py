@@ -11,6 +11,7 @@ from ..repositories.audit_repo import AuditRepository
 from ..services.auth_service import AuthService
 from ..services.books_service import BooksService
 from ..services.gallery_service import GalleryService
+from ..services.notes_service import NotesService
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -27,6 +28,10 @@ def _gallery_service() -> GalleryService:
     return GalleryService(get_db())
 
 
+def _notes_service() -> NotesService:
+    return NotesService(get_db())
+
+
 def _audit_repo() -> AuditRepository:
     return AuditRepository(get_db())
 
@@ -34,7 +39,7 @@ def _audit_repo() -> AuditRepository:
 def _safe_next(next_path: str | None):
     if next_path and next_path.startswith("/") and not next_path.startswith("//"):
         return next_path
-    return url_for("admin.books")
+    return url_for("admin.content")
 
 
 def _admin_actor() -> str:
@@ -89,6 +94,25 @@ def logout():
     return redirect(url_for("admin.login"))
 
 
+@admin_bp.route("/")
+@require_admin
+def index():
+    return redirect(url_for("admin.content"))
+
+
+@admin_bp.route("/content")
+@require_admin
+def content():
+    books_service = _books_service()
+    gallery_service = _gallery_service()
+    return render_template(
+        "admin/content.html",
+        books_count=books_service.count_books(),
+        gallery_count=gallery_service.count_items(),
+        notes_count=_notes_service().count_entries(),
+    )
+
+
 @admin_bp.route("/books")
 @require_admin
 def books():
@@ -96,6 +120,28 @@ def books():
     books_service = _books_service()
     books = books_service.list_admin_books(query=query)
     return render_template("admin/books.html", books=books, query=query)
+
+
+@admin_bp.route("/notes", methods=["GET", "POST"])
+@require_admin
+def notes():
+    notes_service = _notes_service()
+
+    if request.method == "POST":
+        try:
+            notes_service.create_entry(request.form, request.files.get("upload_file"))
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="notes.create",
+                entity="notes_log",
+            )
+            flash("Notes/log entry saved to MongoDB", "success")
+            return redirect(url_for("admin.notes"))
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+
+    entries = notes_service.list_admin_entries(limit_raw="200")
+    return render_template("admin/notes.html", entries=entries)
 
 
 @admin_bp.route("/books/<book_id>/edit", methods=["GET", "POST"])
