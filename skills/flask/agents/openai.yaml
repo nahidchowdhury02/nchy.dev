@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flask Engineer"
+  short_description: "Build and maintain Flask web apps"
+  default_prompt: "Use $flask to implement and verify Flask routes, templates, and services."
