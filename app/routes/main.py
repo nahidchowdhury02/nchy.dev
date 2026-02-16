@@ -10,6 +10,26 @@ def home():
     return render_template("pages/index.html")
 
 
+@main_bp.route("/gallery")
+def gallery():
+    return render_template("pages/gallery.html")
+
+
+@main_bp.route("/gallery/sketches")
+def gallery_sketches():
+    return render_template("pages/gallery_sketches.html")
+
+
+@main_bp.route("/gallery/moments")
+def gallery_moments():
+    return render_template("pages/gallery_moments.html")
+
+
+@main_bp.route("/gallery/all")
+def gallery_all():
+    return render_template("pages/gallery_all.html")
+
+
 @main_bp.route("/edit", methods=["GET", "POST"])
 def edit():
     books = load_books()
