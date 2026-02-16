@@ -19,8 +19,16 @@ from app.services.auth_service import AuthService  # noqa: E402
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create or update the single admin account")
-    parser.add_argument("--username", required=True, help="Admin username")
-    parser.add_argument("--password", default="", help="Admin password (leave empty to prompt securely)")
+    parser.add_argument(
+        "--username",
+        default=os.getenv("ADMIN_USERNAME", ""),
+        help="Admin username (defaults to ADMIN_USERNAME env var)",
+    )
+    parser.add_argument(
+        "--password",
+        default=os.getenv("ADMIN_PASSWORD", ""),
+        help="Admin password (defaults to ADMIN_PASSWORD env var)",
+    )
     parser.add_argument("--token", default="", help="Bootstrap token when ADMIN_BOOTSTRAP_TOKEN is set")
     parser.add_argument("--mongo-uri", default=os.getenv("MONGODB_URI", ""), help="MongoDB connection URI")
     parser.add_argument(
@@ -37,6 +45,9 @@ def main():
     expected_token = os.getenv("ADMIN_BOOTSTRAP_TOKEN", "")
     if expected_token and args.token != expected_token:
         raise SystemExit("Invalid bootstrap token")
+
+    if not args.username:
+        raise SystemExit("Missing --username or ADMIN_USERNAME")
 
     if not args.mongo_uri:
         raise SystemExit("Missing --mongo-uri or MONGODB_URI")

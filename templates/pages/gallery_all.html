@@ -6,15 +6,15 @@
 {% block content %}
   <section class="card">
     <h2>Combined Archive</h2>
-    <p>All public gallery items in one stream.</p>
+    <p>All public gallery items</p>
   </section>
 
   <section class="gallery-detail-grid" aria-label="All items">
     {% if items %}
       {% for item in items %}
-        <article class="card gallery-detail-tile">
+        <article class="card gallery-detail-tile" data-gallery-item-key="{{ item.id or item.image_url }}">
           {% if item.image_url %}
-            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media" loading="lazy" />
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media js-expandable-image" loading="lazy" />
             <span class="tile-title">{{ item.title or 'archive item' }}</span>
           {% else %}
             <span class="tile-title-empty">{{ item.title or 'archive item' }}</span>

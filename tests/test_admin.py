@@ -1,12 +1,13 @@
 import io
-from pathlib import Path
 from datetime import datetime, timezone
 
 
 def login(client):
+    username = client.application.config["ADMIN_USERNAME"]
+    password = client.application.config["ADMIN_PASSWORD"]
     return client.post(
         "/admin/login",
-        data={"username": "admin", "password": "password123"},
+        data={"username": username, "password": password},
         follow_redirects=False,
     )
 
@@ -18,9 +19,10 @@ def test_admin_login_success(client):
 
 
 def test_admin_login_invalid_password(client):
+    username = client.application.config["ADMIN_USERNAME"]
     response = client.post(
         "/admin/login",
-        data={"username": "admin", "password": "wrong-password"},
+        data={"username": username, "password": "wrong-password"},
         follow_redirects=False,
     )
     assert response.status_code == 401
@@ -77,7 +79,7 @@ def test_admin_gallery_create_and_delete(app, client):
             "title": "A sketch",
             "caption": "caption",
             "image_url": "https://example.com/a.jpg",
-            "cloudinary_public_id": "img/a",
+            "storage_public_id": "img/a",
             "sort_order": "3",
             "is_published": "1",
         },
@@ -93,7 +95,7 @@ def test_admin_gallery_create_and_delete(app, client):
     assert db.gallery_items.find_one({"_id": item["_id"]}) is None
 
 
-def test_admin_gallery_upload_falls_back_to_local_when_cloudinary_missing(app, client):
+def test_admin_gallery_upload_uses_mongo_storage(app, client):
     login(client)
 
     response = client.post(
@@ -105,7 +107,7 @@ def test_admin_gallery_upload_falls_back_to_local_when_cloudinary_missing(app, c
     assert response.status_code == 200
     payload = response.get_json()
     assert payload["image_url"].startswith("/media/gallery/")
-    assert payload["cloudinary_public_id"].startswith("mongo:")
+    assert payload["storage_public_id"].startswith("mongo:")
 
 
 def test_admin_gallery_create_with_file_sets_image_url(app, client):
@@ -130,4 +132,4 @@ def test_admin_gallery_create_with_file_sets_image_url(app, client):
     item = db.gallery_items.find_one({"title": "file sketch"})
     assert item is not None
     assert item["image_url"].startswith("/media/gallery/")
-    assert item["cloudinary_public_id"].startswith("mongo:")
+    assert item["storage_public_id"].startswith("mongo:")

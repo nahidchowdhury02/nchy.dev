@@ -6,15 +6,15 @@
 {% block content %}
   <section class="card">
     <h2>Sketches</h2>
-    <p>Draft lines, paper grains, and studies in progress.</p>
+    <p>pages that survives mostly, most dont</p>
   </section>
 
   <section class="gallery-detail-grid" aria-label="Sketches">
     {% if items %}
       {% for item in items %}
-        <article class="card gallery-detail-tile">
+        <article class="card gallery-detail-tile" data-gallery-item-key="{{ item.id or item.image_url }}">
           {% if item.image_url %}
-            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media" loading="lazy" />
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media js-expandable-image" loading="lazy" />
             <span class="tile-title">{{ item.title or 'sketch' }}</span>
           {% else %}
             <span class="tile-title-empty">{{ item.title or 'sketch' }}</span>

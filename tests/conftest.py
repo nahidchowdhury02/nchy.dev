@@ -11,6 +11,8 @@ class MongoTestConfig(TestConfig):
     SECRET_KEY = "test-secret"
     MONGODB_URI = ""
     MONGODB_DB_NAME = "archive_test"
+    ADMIN_USERNAME = "admin_test"
+    ADMIN_PASSWORD = "password123_test"
 
 
 @pytest.fixture
@@ -24,7 +26,10 @@ def app():
     flask_app.extensions["mongo_client"] = None
 
     with flask_app.app_context():
-        AuthService(mongo_db).bootstrap_admin("admin", "password123")
+        AuthService(mongo_db).bootstrap_admin(
+            MongoTestConfig.ADMIN_USERNAME,
+            MongoTestConfig.ADMIN_PASSWORD,
+        )
 
     return flask_app
 

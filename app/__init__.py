@@ -9,7 +9,8 @@ from .extensions import csrf, limiter
 from .routes.admin import admin_bp
 from .routes.api import api_bp
 from .routes.main import main_bp
-from .services.cloudinary_service import configure_cloudinary
+from .services.auth_service import AuthService
+from .services.media_storage_service import configure_media_storage
 
 
 def create_app(config_class=Config):
@@ -27,7 +28,8 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     limiter.init_app(app)
     init_db(app)
-    configure_cloudinary(app)
+    configure_media_storage(app)
+    bootstrap_admin_from_env(app)
 
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
@@ -41,3 +43,20 @@ def create_app(config_class=Config):
         }
 
     return app
+
+
+def bootstrap_admin_from_env(app):
+    db = app.extensions.get("mongo_db")
+    if db is None:
+        return
+
+    username = (app.config.get("ADMIN_USERNAME") or "").strip()
+    password = app.config.get("ADMIN_PASSWORD") or ""
+    if not username or not password:
+        return
+
+    try:
+        AuthService(db).bootstrap_admin(username=username, password=password)
+        app.logger.info("Admin credentials bootstrapped from environment for '%s'", username)
+    except Exception as exc:
+        app.logger.warning("Admin bootstrap from environment failed: %s", exc)

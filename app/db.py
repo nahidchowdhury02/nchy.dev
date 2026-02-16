@@ -45,6 +45,8 @@ def ensure_indexes(db):
 
     db.gallery_items.create_index([("category", ASCENDING), ("sort_order", ASCENDING)])
     db.gallery_items.create_index([("is_published", ASCENDING)])
+    db.music_links.create_index([("sort_order", ASCENDING), ("created_at", DESCENDING)])
+    db.music_links.create_index([("is_published", ASCENDING)])
 
     db.admin_users.create_index([("username", ASCENDING)], unique=True)
 

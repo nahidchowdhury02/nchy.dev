@@ -20,10 +20,8 @@ class Config:
     MONGODB_URI = os.getenv("MONGODB_URI", "")
     MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME", "archive")
 
-    CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "")
-    CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "")
-    CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "")
-
+    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "").strip()
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
     ADMIN_BOOTSTRAP_TOKEN = os.getenv("ADMIN_BOOTSTRAP_TOKEN", "")
 
     SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", False)

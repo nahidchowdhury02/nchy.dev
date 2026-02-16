@@ -9,6 +9,7 @@ PUBLIC_ROUTES = [
     "/gallery/sketches",
     "/gallery/moments",
     "/gallery/all",
+    "/music",
     "/reading",
     "/notes",
     "/contact",
@@ -19,14 +20,17 @@ ADMIN_ROUTES = [
     "/admin/manage",
     "/admin/books",
     "/admin/gallery",
+    "/admin/music",
     "/admin/manage/notes",
 ]
 
 
 def login(client):
+    username = client.application.config["ADMIN_USERNAME"]
+    password = client.application.config["ADMIN_PASSWORD"]
     return client.post(
         "/admin/login",
-        data={"username": "admin", "password": "password123"},
+        data={"username": username, "password": password},
         follow_redirects=False,
     )
 

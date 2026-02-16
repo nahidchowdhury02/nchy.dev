@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+from pathlib import Path
+from uuid import uuid4
+
+from bson import ObjectId
+from bson.binary import Binary
+from flask import current_app, url_for
+from werkzeug.utils import secure_filename
+
+
+def configure_media_storage(app):
+    app.logger.info("Media storage backend: MongoDB")
+
+
+def upload_image(file_storage):
+    db = current_app.extensions.get("mongo_db")
+    if db is None:
+        raise RuntimeError("MongoDB is unavailable for upload storage")
+
+    original_name = secure_filename(file_storage.filename or "")
+    suffix = Path(original_name).suffix.lower() or ".bin"
+    filename = original_name or f"{uuid4().hex}{suffix}"
+
+    file_storage.stream.seek(0)
+    content = file_storage.stream.read()
+    result = db.gallery_upload_blobs.insert_one(
+        {
+            "filename": filename,
+            "content_type": file_storage.mimetype or "application/octet-stream",
+            "data": Binary(content),
+        }
+    )
+    file_id = result.inserted_id
+
+    return {
+        "image_url": url_for("main.gallery_media", media_id=str(file_id), filename=filename),
+        "public_id": f"mongo:{file_id}",
+    }
+
+
+def delete_image(public_id: str):
+    if not public_id or not public_id.startswith("mongo:"):
+        return
+
+    object_id_raw = public_id.removeprefix("mongo:").strip()
+    if not ObjectId.is_valid(object_id_raw):
+        return
+
+    db = current_app.extensions.get("mongo_db")
+    if db is None:
+        return
+
+    db.gallery_upload_blobs.delete_one({"_id": ObjectId(object_id_raw)})
+

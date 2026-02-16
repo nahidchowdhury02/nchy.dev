@@ -23,15 +23,6 @@ services:
       - key: MONGODB_DB_NAME
         scope: RUN_AND_BUILD_TIME
         value: archive
-      - key: CLOUDINARY_CLOUD_NAME
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-      - key: CLOUDINARY_API_KEY
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-      - key: CLOUDINARY_API_SECRET
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
       - key: SESSION_COOKIE_SECURE
         scope: RUN_AND_BUILD_TIME
         value: "1"

@@ -11,6 +11,7 @@ from ..repositories.audit_repo import AuditRepository
 from ..services.auth_service import AuthService
 from ..services.books_service import BooksService
 from ..services.gallery_service import GalleryService
+from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -32,6 +33,10 @@ def _notes_service() -> NotesService:
     return NotesService(get_db())
 
 
+def _music_service() -> MusicService:
+    return MusicService(get_db())
+
+
 def _audit_repo() -> AuditRepository:
     return AuditRepository(get_db())
 
@@ -43,7 +48,7 @@ def _safe_next(next_path: str | None):
 
 
 def _admin_actor() -> str:
-    return session.get("admin_username", "admin")
+    return session.get("admin_username", "system")
 
 
 @admin_bp.route("/login", methods=["GET", "POST"])
@@ -115,6 +120,7 @@ def manage():
         "admin/manage/content.html",
         books_count=books_service.count_books(),
         gallery_count=gallery_service.count_items(),
+        music_count=_music_service().count_links(),
         notes_count=_notes_service().count_entries(),
     )
 
@@ -267,3 +273,68 @@ def gallery_upload():
         return jsonify(payload)
     except (ValueError, RuntimeError) as exc:
         return jsonify({"error": str(exc)}), 400
+
+
+@admin_bp.route("/music", methods=["GET", "POST"])
+@admin_bp.route("/manage/music", methods=["GET", "POST"])
+@require_admin
+def music():
+    music_service = _music_service()
+
+    if request.method == "POST":
+        try:
+            music_service.create_link(request.form)
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="music.create",
+                entity="music_link",
+            )
+            flash("Music link created", "success")
+            return redirect(url_for("admin.music"))
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+
+    links = music_service.list_admin_links()
+    return render_template("admin/music.html", links=links)
+
+
+@admin_bp.route("/music/<link_id>", methods=["POST"])
+@require_admin
+def music_update(link_id):
+    music_service = _music_service()
+    try:
+        updated = music_service.update_link(link_id, request.form)
+        if not updated:
+            flash("Music link not found", "error")
+        else:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="music.update",
+                entity="music_link",
+                entity_id=link_id,
+            )
+            flash("Music link updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.music"))
+
+
+@admin_bp.route("/music/<link_id>/delete", methods=["POST"])
+@require_admin
+def music_delete(link_id):
+    music_service = _music_service()
+    try:
+        deleted = music_service.delete_link(link_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="music.delete",
+                entity="music_link",
+                entity_id=link_id,
+            )
+            flash("Music link deleted", "success")
+        else:
+            flash("Music link not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.music"))

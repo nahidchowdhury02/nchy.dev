@@ -5,7 +5,27 @@
 
 {% block content %}
   <section class="card">
-    <h2>Music List</h2>
-    <p>Hymns for late hours.</p>
+    <h2>Music</h2>
+    <p>songs that i like, that i love and that makes life feel like a movie</p>
+  </section>
+
+  <section class="card-grid" aria-label="Music embeds">
+    {% for link in links %}
+      <article class="card music-card">
+        <h3>{{ link.title }}</h3>
+        <div class="music-embed-wrap">
+          <iframe
+            src="{{ link.embed_url }}"
+            title="{{ link.title }}"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"
+          ></iframe>
+        </div>
+      </article>
+    {% else %}
+      <article class="card"><p>No music links yet.</p></article>
+    {% endfor %}
   </section>
 {% endblock %}

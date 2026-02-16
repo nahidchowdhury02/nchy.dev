@@ -41,6 +41,27 @@ class BooksRepository:
 
         return [serialize_doc(doc) for doc in docs], next_cursor
 
+    def list_books_page(self, query: str = "", page: int = 1, per_page: int = 24):
+        if self.collection is None:
+            return [], 0
+
+        filters: dict[str, Any] = {}
+        if query:
+            regex = {"$regex": query, "$options": "i"}
+            filters["$or"] = [
+                {"title": regex},
+                {"original_title": regex},
+                {"authors": regex},
+            ]
+
+        total = self.collection.count_documents(filters)
+        safe_page = max(page, 1)
+        safe_per_page = max(per_page, 1)
+        skip = (safe_page - 1) * safe_per_page
+
+        docs = list(self.collection.find(filters).sort("_id", ASCENDING).skip(skip).limit(safe_per_page))
+        return [serialize_doc(doc) for doc in docs], total
+
     def list_previews(self, limit: int = 8):
         if self.collection is None:
             return []

@@ -1,0 +1,83 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Music Ward{% endblock %}
+{% block header_title %}Music Ward{% endblock %}
+
+{% block content %}
+  <section class="card form-card">
+    <h2>New YouTube link</h2>
+    <form method="post" action="{{ url_for('admin.music') }}" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-field">
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" required />
+      </div>
+
+      <div class="form-field">
+        <label for="youtube_url">YouTube URL</label>
+        <input id="youtube_url" type="url" name="youtube_url" required />
+      </div>
+
+      <div class="form-field">
+        <label for="sort_order">Sort</label>
+        <input id="sort_order" type="number" name="sort_order" value="0" />
+      </div>
+
+      <div class="form-field">
+        <label><input type="checkbox" name="is_published" value="1" checked /> shown</label>
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">forge</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2 class="section-title">Kept links</h2>
+    <div class="card-grid" aria-label="Kept music links">
+      {% for link in links %}
+        <article class="card admin-item">
+          <form method="post" action="{{ url_for('admin.music_update', link_id=link.id) }}" class="form-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="form-field">
+              <label>Title</label>
+              <input type="text" name="title" value="{{ link.title }}" required />
+            </div>
+
+            <div class="form-field">
+              <label>YouTube URL</label>
+              <input type="url" name="youtube_url" value="{{ link.youtube_url }}" required />
+            </div>
+
+            <div class="form-field">
+              <label>Sort</label>
+              <input type="number" name="sort_order" value="{{ link.sort_order }}" />
+            </div>
+
+            <div class="form-field">
+              <label><input type="checkbox" name="is_published" value="1" {% if link.is_published %}checked{% endif %} /> shown</label>
+            </div>
+
+            <div class="form-field form-field-full">
+              <button type="submit">save</button>
+            </div>
+          </form>
+
+          <div class="item-actions">
+            <a class="btn-link" href="{{ link.embed_url }}" target="_blank" rel="noreferrer noopener">preview</a>
+            <form method="post" action="{{ url_for('admin.music_delete', link_id=link.id) }}" onsubmit="return confirm('Remove this link?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit">remove</button>
+            </form>
+          </div>
+        </article>
+      {% else %}
+        <article class="card"><p>none yet.</p></article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+

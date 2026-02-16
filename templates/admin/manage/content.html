@@ -23,6 +23,12 @@
     </article>
 
     <article class="card">
+      <h3>Music</h3>
+      <p class="metric-value">{{ music_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.music') }}">tend</a>
+    </article>
+
+    <article class="card">
       <h3>Notes</h3>
       <p class="metric-value">{{ notes_count }}</p>
       <a class="btn-link" href="{{ url_for('admin.notes') }}">tend</a>

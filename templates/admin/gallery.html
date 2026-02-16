@@ -40,8 +40,8 @@
       </div>
 
       <div class="form-field form-field-full">
-        <label for="create-public-id">Cloudinary ID</label>
-        <input id="create-public-id" type="text" name="cloudinary_public_id" />
+        <label for="create-public-id">Storage ID</label>
+        <input id="create-public-id" type="text" name="storage_public_id" />
       </div>
 
       <div class="form-field">
@@ -97,8 +97,8 @@
             </div>
 
             <div class="form-field form-field-full">
-              <label>Cloudinary ID</label>
-              <input type="text" name="cloudinary_public_id" value="{{ item.cloudinary_public_id }}" />
+              <label>Storage ID</label>
+              <input type="text" name="storage_public_id" value="{{ item.storage_public_id or item.cloudinary_public_id }}" />
             </div>
 
             <div class="form-field">

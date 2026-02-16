@@ -5,8 +5,8 @@
 
 {% block content %}
   <section class="card">
-    <h2>Reading List</h2>
-    <p>Volumes kept in MongoDB.</p>
+    <h2>Books</h2>
+    <p>{{ total_books }} total books. Page {{ page }} of {{ total_pages }}.</p>
   </section>
 
   <section class="card-grid" aria-label="Reading list">
@@ -20,4 +20,18 @@
       <article class="card"><p>no books yet.</p></article>
     {% endfor %}
   </section>
+
+  {% if total_pages > 1 %}
+    <section class="card">
+      <div class="inline-actions" aria-label="Reading pagination">
+        {% if has_prev %}
+          <a class="btn-link" href="{{ url_for('main.reading', page=page-1) }}">previous</a>
+        {% endif %}
+        <span class="small-note">page {{ page }} / {{ total_pages }}</span>
+        {% if has_next %}
+          <a class="btn-link" href="{{ url_for('main.reading', page=page+1) }}">next</a>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}

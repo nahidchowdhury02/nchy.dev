@@ -2,7 +2,6 @@ Flask
 gunicorn
 pymongo
 dnspython
-cloudinary
 Flask-WTF
 passlib[bcrypt]
 Flask-Limiter

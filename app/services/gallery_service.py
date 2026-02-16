@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from .cloudinary_service import delete_image, upload_image
+from .media_storage_service import delete_image, upload_image
 from ..repositories.gallery_repo import GalleryRepository
 from ..utils import parse_positive_int
 
@@ -53,8 +53,8 @@ class GalleryService:
         item["updated_at"] = datetime.now(timezone.utc)
         updated = self.repo.update_item(item_id, item)
 
-        new_public_id = item.get("cloudinary_public_id", "")
-        old_public_id = (current_item or {}).get("cloudinary_public_id", "")
+        new_public_id = self._public_id(item)
+        old_public_id = self._public_id(current_item or {})
         if new_public_id and old_public_id and old_public_id != new_public_id:
             delete_image(old_public_id)
 
@@ -67,7 +67,7 @@ class GalleryService:
         current_item = self.repo.get_by_id(item_id)
         deleted = self.repo.delete_item(item_id)
         if deleted and current_item:
-            delete_image(current_item.get("cloudinary_public_id", ""))
+            delete_image(self._public_id(current_item))
         return deleted
 
     def upload_item_image(self, file_storage):
@@ -80,7 +80,7 @@ class GalleryService:
         upload_result = upload_image(file_storage)
         return {
             "image_url": upload_result["image_url"],
-            "cloudinary_public_id": upload_result["public_id"],
+            "storage_public_id": upload_result["public_id"],
         }
 
     def _validate_payload(self, payload: dict):
@@ -88,7 +88,7 @@ class GalleryService:
         title = (payload.get("title") or "").strip() or "Untitled"
         caption = (payload.get("caption") or "").strip()
         image_url = (payload.get("image_url") or "").strip()
-        cloudinary_public_id = (payload.get("cloudinary_public_id") or "").strip()
+        storage_public_id = (payload.get("storage_public_id") or payload.get("cloudinary_public_id") or "").strip()
 
         try:
             sort_order = int(payload.get("sort_order") or 0)
@@ -103,7 +103,7 @@ class GalleryService:
             "title": title,
             "caption": caption,
             "image_url": image_url,
-            "cloudinary_public_id": cloudinary_public_id,
+            "storage_public_id": storage_public_id,
             "sort_order": sort_order,
             "is_published": is_published,
         }
@@ -123,7 +123,10 @@ class GalleryService:
 
         upload_result = upload_image(file_storage)
         item["image_url"] = upload_result["image_url"]
-        item["cloudinary_public_id"] = upload_result["public_id"]
+        item["storage_public_id"] = upload_result["public_id"]
+
+    def _public_id(self, item: dict):
+        return (item.get("storage_public_id") or item.get("cloudinary_public_id") or "").strip()
 
     def count_items(self) -> int:
         if not self.repo.available():

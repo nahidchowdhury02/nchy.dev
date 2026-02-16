@@ -19,6 +19,39 @@ class BooksService:
         books, next_cursor = self.repo.list_books(query=query, limit=limit, cursor=cursor)
         return [self._to_public_payload(book) for book in books], next_cursor
 
+    def list_public_books_page(self, query: str = "", page_raw: str | None = None, per_page_raw: str | None = None):
+        page = parse_positive_int(page_raw, default=1, max_value=100000)
+        per_page = parse_positive_int(per_page_raw, default=24, max_value=100)
+
+        if not self.repo.available():
+            return {
+                "items": [],
+                "page": 1,
+                "per_page": per_page,
+                "total": 0,
+                "total_pages": 1,
+                "has_prev": False,
+                "has_next": False,
+            }
+
+        books, total = self.repo.list_books_page(query=query, page=page, per_page=per_page)
+        total_pages = max(1, (total + per_page - 1) // per_page)
+
+        # If page is out of range, clamp to the last available page.
+        if total > 0 and page > total_pages:
+            page = total_pages
+            books, total = self.repo.list_books_page(query=query, page=page, per_page=per_page)
+
+        return {
+            "items": [self._to_public_payload(book) for book in books],
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+            "has_prev": page > 1,
+            "has_next": page < total_pages,
+        }
+
     def get_public_book(self, id_or_slug: str):
         if not self.repo.available():
             return None

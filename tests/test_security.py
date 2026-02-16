@@ -7,6 +7,8 @@ class CsrfConfig(Config):
     SECRET_KEY = "test-secret"
     MONGODB_URI = ""
     WTF_CSRF_ENABLED = True
+    ADMIN_USERNAME = "admin_test"
+    ADMIN_PASSWORD = "password123_test"
 
 
 def test_login_requires_csrf_when_enabled():
@@ -15,7 +17,7 @@ def test_login_requires_csrf_when_enabled():
 
     response = client.post(
         "/admin/login",
-        data={"username": "admin", "password": "password123"},
+        data={"username": CsrfConfig.ADMIN_USERNAME, "password": CsrfConfig.ADMIN_PASSWORD},
         follow_redirects=False,
     )
 

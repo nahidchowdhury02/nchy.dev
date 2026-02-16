@@ -36,6 +36,71 @@
     <footer class="app-footer">{% block footer %}Kept, not hurried.{% endblock %}</footer>
   </div>
 
+  <div id="gallery-lightbox" class="gallery-lightbox" hidden>
+    <img id="gallery-lightbox-image" alt="" />
+  </div>
+
+  <script>
+    (function () {
+      const storageKey = "hiddenGalleryItems";
+      const hiddenItems = new Set(JSON.parse(sessionStorage.getItem(storageKey) || "[]"));
+
+      function persistHiddenSet() {
+        sessionStorage.setItem(storageKey, JSON.stringify(Array.from(hiddenItems)));
+      }
+
+      function hideMarkedItems() {
+        document.querySelectorAll("[data-gallery-item-key]").forEach((el) => {
+          const key = el.getAttribute("data-gallery-item-key");
+          if (key && hiddenItems.has(key)) {
+            el.classList.add("session-hidden");
+          }
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        hideMarkedItems();
+
+        const lightbox = document.getElementById("gallery-lightbox");
+        const lightboxImage = document.getElementById("gallery-lightbox-image");
+        if (!lightbox || !lightboxImage) {
+          return;
+        }
+
+        let activeContainer = null;
+
+        document.querySelectorAll(".js-expandable-image").forEach((image) => {
+          image.addEventListener("click", function () {
+            const container = image.closest("[data-gallery-item-key]");
+            if (!container || container.classList.contains("session-hidden")) {
+              return;
+            }
+            activeContainer = container;
+            lightboxImage.src = image.src;
+            lightboxImage.alt = image.alt || "gallery image";
+            lightbox.hidden = false;
+            document.body.classList.add("lightbox-open");
+          });
+        });
+
+        lightbox.addEventListener("click", function (event) {
+          if (event.target === lightboxImage && activeContainer) {
+            const key = activeContainer.getAttribute("data-gallery-item-key");
+            if (key) {
+              hiddenItems.add(key);
+              persistHiddenSet();
+              activeContainer.classList.add("session-hidden");
+            }
+          }
+
+          lightbox.hidden = true;
+          lightboxImage.src = "";
+          activeContainer = null;
+          document.body.classList.remove("lightbox-open");
+        });
+      });
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
