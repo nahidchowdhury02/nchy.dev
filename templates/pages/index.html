@@ -1,69 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INCXCNI</title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-  <header>
-    <h1>QUIET STACK OF N</h1>
-  </header>
+{% extends "layouts/public.html" %}
 
-  <main>
-    <div class="notice-banner" role="status" id="notice-banner">
-      <span>wayfarer, this house is half built.</span>
-      <button class="notice-dismiss" id="notice-dismiss" type="button">aye</button>
-    </div>
-    <section class="hero-shelves">
-      <div class="dev-box">
-        <div class="dev-box-header">
-          <span class="dev-box-title">The Library</span>
-          <span class="dev-box-subtitle">old volumes and marginalia.</span>
-        </div>
-        <div class="dev-box-previews" id="dev-previews"></div>
+{% block title %}INCXCNI{% endblock %}
+{% block header_title %}Quiet Stack of N{% endblock %}
+
+{% block content %}
+  <div class="notice-banner card" role="status" id="notice-banner">
+    <span>Wayfarer, this house is half built.</span>
+    <button class="notice-dismiss" id="notice-dismiss" type="button">aye</button>
+  </div>
+
+  <section class="hero-shelves">
+    <section class="card library-panel">
+      <div class="library-panel-head">
+        <h2>The Library</h2>
+        <p>Old volumes and marginalia.</p>
       </div>
-      <div class="link-grid">
-        <article>
-          <h3>Github &amp; Research</h3>
-          <p>fragments and proofs.</p>
-          <a href="/github-research">view</a>
+      <div class="preview-grid" id="dev-previews"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Explore</h2>
+      <div class="card-grid link-grid">
+        <article class="card">
+          <h3>Github and Research</h3>
+          <p>Fragments and proofs.</p>
+          <a class="btn-link" href="{{ url_for('main.github_research') }}">view</a>
         </article>
-        <article>
+        <article class="card">
           <h3>Gallery</h3>
-          <p>sketches and remnants.</p>
-          <a href="/gallery">view</a>
+          <p>Sketches and remnants.</p>
+          <a class="btn-link" href="{{ url_for('main.gallery') }}">view</a>
         </article>
-        <article>
-          <h3>Music list</h3>
-          <p>night songs.</p>
-          <a href="/music">listen</a>
+        <article class="card">
+          <h3>Music List</h3>
+          <p>Night songs.</p>
+          <a class="btn-link" href="{{ url_for('main.music') }}">listen</a>
         </article>
-        <article>
+        <article class="card">
           <h3>Reading List</h3>
-          <p>books in hand.</p>
-          <a href="/reading">open</a>
+          <p>Books in hand.</p>
+          <a class="btn-link" href="{{ url_for('main.reading') }}">open</a>
         </article>
-        <article>
+        <article class="card">
           <h3>Fun Stuff</h3>
-          <p>odd little trials.</p>
-          <a href="/fun">try</a>
+          <p>Odd little trials.</p>
+          <a class="btn-link" href="{{ url_for('main.fun') }}">try</a>
         </article>
-        <article>
-          <h3>Notes &amp; Logs</h3>
-          <p>ledger and whisper.</p>
-          <a href="/notes">read</a>
+        <article class="card">
+          <h3>Notes and Logs</h3>
+          <p>Ledger and whisper.</p>
+          <a class="btn-link" href="{{ url_for('main.notes') }}">read</a>
         </article>
-        <article>
-          <h3>eh</h3>
-          <p>if you must write.</p>
-          <a href="/contact">email</a>
+        <article class="card">
+          <h3>Contact</h3>
+          <p>If you must write.</p>
+          <a class="btn-link" href="{{ url_for('main.contact') }}">email</a>
         </article>
       </div>
     </section>
-  </main>
+  </section>
+{% endblock %}
 
+{% block scripts %}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const dismiss = document.getElementById("notice-dismiss");
@@ -78,7 +76,11 @@
       const fallbackBooks = {{ preview_books|tojson }};
 
       function renderBooks(books) {
+        if (!previews) {
+          return;
+        }
         previews.innerHTML = "";
+
         books.forEach((book) => {
           const title = book.title || book.original_title || "Untitled";
           const cover = book.cover_url || "/static/images/gallery-sketches.png";
@@ -90,8 +92,8 @@
       }
 
       fetch("/api/books?limit=8")
-        .then(response => response.json())
-        .then(payload => {
+        .then((response) => response.json())
+        .then((payload) => {
           renderBooks(payload.items || []);
         })
         .catch(() => {
@@ -99,7 +101,4 @@
         });
     });
   </script>
-
-  <footer>Kept, not hurried.</footer>
-</body>
-</html>
+{% endblock %}

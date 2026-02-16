@@ -38,9 +38,11 @@ venv/
 .env.*
 password
 password.txt
-.env.example
 
 # OS/editor caches
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Local uploaded media
+static/uploads/

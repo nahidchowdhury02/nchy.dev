@@ -1,7 +1,32 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Admin Gate</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Admin Gate</h1></header><main>
-{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
-<form method="post" action="{{ url_for('admin.login') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><input type="hidden" name="next" value="{{ next_path }}" /><p><label>Name</label><br /><input type="text" name="username" required /></p><p><label>Passphrase</label><br /><input type="password" name="password" required /></p><button type="submit">enter</button></form>
-<p><a href="/">home</a></p>
-</main></body></html>
+{% extends "layouts/admin.html" %}
+
+{% block title %}Admin Gate{% endblock %}
+{% block header_title %}Admin Gate{% endblock %}
+
+{% block nav %}
+  <a href="{{ url_for('main.home') }}">home</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card form-card">
+    <h2>Sign in</h2>
+    <form method="post" action="{{ url_for('admin.login') }}" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input type="hidden" name="next" value="{{ next_path }}" />
+
+      <div class="form-field">
+        <label for="username">Name</label>
+        <input id="username" type="text" name="username" autocomplete="username" required />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Passphrase</label>
+        <input id="password" type="password" name="password" autocomplete="current-password" required />
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">enter</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

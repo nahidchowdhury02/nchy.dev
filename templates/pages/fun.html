@@ -1,1 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Fun Stuff</title><link rel="stylesheet" href="/static/styles.css" /></head><body><header><h1>Fun Stuff</h1></header><main><p>small mischief and trials.</p><nav><a href="/">home</a></nav></main></body></html>
+{% extends "layouts/public.html" %}
+
+{% block title %}Fun Stuff{% endblock %}
+{% block header_title %}Fun Stuff{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Fun Stuff</h2>
+    <p>Small mischief and trials.</p>
+  </section>
+{% endblock %}

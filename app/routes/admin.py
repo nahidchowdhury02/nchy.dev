@@ -191,7 +191,7 @@ def gallery():
 
     if request.method == "POST":
         try:
-            gallery_service.create_item(request.form)
+            gallery_service.create_item(request.form, request.files.get("image"))
             _audit_repo().log(
                 actor=_admin_actor(),
                 action="gallery.create",
@@ -212,7 +212,11 @@ def gallery():
 def gallery_update(item_id):
     gallery_service = _gallery_service()
     try:
-        updated = gallery_service.update_item(item_id=item_id, payload=request.form)
+        updated = gallery_service.update_item(
+            item_id=item_id,
+            payload=request.form,
+            file_storage=request.files.get("image"),
+        )
         if not updated:
             flash("Gallery item not found", "error")
         else:

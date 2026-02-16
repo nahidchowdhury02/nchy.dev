@@ -1,15 +1,52 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Tend Book</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Tend Book</h1></header><main>
-{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
-<nav><a href="{{ url_for('admin.manage') }}">Hall</a><a href="{{ url_for('admin.books') }}">Books</a><a href="{{ url_for('admin.gallery') }}">Gallery</a><a href="{{ url_for('admin.notes') }}">Notes</a><a href="/">Home</a></nav>
-<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-<p><label>Title</label><br /><input type="text" name="title" value="{{ book.title }}" required /></p>
-<p><label>Slug</label><br /><input type="text" name="slug" value="{{ book.slug }}" required /></p>
-<p><label>Authors (comma)</label><br /><input type="text" name="author" value="{{ book.author }}" /></p>
-<p><label>Subtitle</label><br /><input type="text" name="subtitle" value="{{ book.subtitle }}" /></p>
-<p><label>Year</label><br /><input type="number" name="first_publish_year" value="{{ book.first_publish_year or '' }}" /></p>
-<p><label>Cover URL</label><br /><input type="url" name="cover_url" value="{{ book.cover_url or '' }}" /></p>
-<p><label>Description</label><br /><textarea name="description" rows="8" style="width:100%;">{{ book.description }}</textarea></p>
-<button type="submit">save</button></form>
-</main></body></html>
+{% extends "layouts/admin.html" %}
+
+{% block title %}Tend Book{% endblock %}
+{% block header_title %}Tend Book{% endblock %}
+
+{% block content %}
+  <section class="card form-card">
+    <h2>Edit details</h2>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-field form-field-full">
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" value="{{ book.title }}" required />
+      </div>
+
+      <div class="form-field">
+        <label for="slug">Slug</label>
+        <input id="slug" type="text" name="slug" value="{{ book.slug }}" required />
+      </div>
+
+      <div class="form-field">
+        <label for="author">Authors (comma)</label>
+        <input id="author" type="text" name="author" value="{{ book.author }}" />
+      </div>
+
+      <div class="form-field">
+        <label for="subtitle">Subtitle</label>
+        <input id="subtitle" type="text" name="subtitle" value="{{ book.subtitle }}" />
+      </div>
+
+      <div class="form-field">
+        <label for="first_publish_year">Year</label>
+        <input id="first_publish_year" type="number" name="first_publish_year" value="{{ book.first_publish_year or '' }}" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="cover_url">Cover URL</label>
+        <input id="cover_url" type="url" name="cover_url" value="{{ book.cover_url or '' }}" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="8">{{ book.description }}</textarea>
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">save</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

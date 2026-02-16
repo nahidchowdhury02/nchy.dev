@@ -1,18 +1,31 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Manage</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Manage</h1></header><main>
-{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
-<nav>
-<a href="{{ url_for('admin.manage') }}">Hall</a>
-<a href="{{ url_for('admin.books') }}">Books</a>
-<a href="{{ url_for('admin.gallery') }}">Gallery</a>
-<a href="{{ url_for('admin.notes') }}">Notes</a>
-<a href="/">Home</a>
-</nav>
-<section class="link-grid">
-<article><h3>Books</h3><p>{{ books_count }} in store.</p><a href="{{ url_for('admin.books') }}">tend</a></article>
-<article><h3>Gallery</h3><p>{{ gallery_count }} kept.</p><a href="{{ url_for('admin.gallery') }}">tend</a></article>
-<article><h3>Notes</h3><p>{{ notes_count }} writ.</p><a href="{{ url_for('admin.notes') }}">tend</a></article>
-</section>
-<p>all matter rests in MongoDB.</p>
-</main></body></html>
+{% extends "layouts/admin.html" %}
+
+{% block title %}Manage{% endblock %}
+{% block header_title %}Manage{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Control Hall</h2>
+    <p>All matter rests in MongoDB.</p>
+  </section>
+
+  <section class="metric-strip" aria-label="Admin counts">
+    <article class="card">
+      <h3>Books</h3>
+      <p class="metric-value">{{ books_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.books') }}">tend</a>
+    </article>
+
+    <article class="card">
+      <h3>Gallery</h3>
+      <p class="metric-value">{{ gallery_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.gallery') }}">tend</a>
+    </article>
+
+    <article class="card">
+      <h3>Notes</h3>
+      <p class="metric-value">{{ notes_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.notes') }}">tend</a>
+    </article>
+  </section>
+{% endblock %}

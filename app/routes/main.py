@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, redirect, render_template, url_for
+from bson import ObjectId
+from flask import Blueprint, Response, abort, jsonify, redirect, render_template, url_for
 
 from ..db import get_db
 from ..services.books_service import BooksService
@@ -98,3 +99,20 @@ def healthz():
         return jsonify({"status": "degraded", "database": "down", "error": str(exc)}), 503
 
     return jsonify({"status": "ok", "database": "up"})
+
+
+@main_bp.route("/media/gallery/<media_id>/<path:filename>")
+def gallery_media(media_id, filename):
+    db = get_db()
+    if db is None or not ObjectId.is_valid(media_id):
+        abort(404)
+
+    blob = db.gallery_upload_blobs.find_one({"_id": ObjectId(media_id)})
+    if not blob:
+        abort(404)
+
+    return Response(
+        blob.get("data", b""),
+        mimetype=blob.get("content_type") or "application/octet-stream",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )

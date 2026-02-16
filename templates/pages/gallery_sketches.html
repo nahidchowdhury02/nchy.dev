@@ -1,40 +1,36 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery Sketches</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body class="gallery-shot-page gallery-sketches-shot-page">
-  <main class="gallery-shot-main">
-    <section class="gallery-shot-title-box">
-      <p class="gallery-shot-kicker">PUBLIC ARCHIVE</p>
-      <h1>SKETCHES</h1>
-      <p class="gallery-shot-subtitle">DRAFT LINES, PAPER GRAINS AND STUDIES IN PROGRESS.</p>
-    </section>
+{% extends "layouts/public.html" %}
 
-    <section class="gallery-sketches-shot-grid" aria-label="Sketches">
-      {% if items %}
-        {% for item in items %}
-          <article class="gallery-shot-card gallery-sketches-card">
-            {% if item.image_url %}
-              <img src="{{ item.image_url }}" alt="{{ item.title }}" class="gallery-sketches-image" loading="lazy" />
-            {% endif %}
-            <span class="gallery-sketches-label">{{ item.title or 'sketch' }}</span>
-          </article>
-        {% endfor %}
-      {% else %}
-        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 01</span></article>
-        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 02</span></article>
-        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 03</span></article>
-        <article class="gallery-shot-card gallery-sketches-card"><span class="gallery-sketches-label">sketch 04</span></article>
-      {% endif %}
-    </section>
+{% block title %}Gallery Sketches{% endblock %}
+{% block header_title %}Sketches{% endblock %}
 
-    <div class="gallery-sketches-nav" role="navigation" aria-label="Sketches navigation">
-      <a class="gallery-shot-btn gallery-sketches-back-btn" href="/gallery">back gallery</a>
-    </div>
-  </main>
-</body>
-</html>
+{% block content %}
+  <section class="card">
+    <h2>Sketches</h2>
+    <p>Draft lines, paper grains, and studies in progress.</p>
+  </section>
+
+  <section class="gallery-detail-grid" aria-label="Sketches">
+    {% if items %}
+      {% for item in items %}
+        <article class="card gallery-detail-tile">
+          {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media" loading="lazy" />
+            <span class="tile-title">{{ item.title or 'sketch' }}</span>
+          {% else %}
+            <span class="tile-title-empty">{{ item.title or 'sketch' }}</span>
+          {% endif %}
+        </article>
+      {% endfor %}
+    {% else %}
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">sketch 01</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">sketch 02</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">sketch 03</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">sketch 04</span></article>
+    {% endif %}
+  </section>
+
+  <div class="inline-actions" role="navigation" aria-label="Sketches navigation">
+    <a class="btn-link" href="{{ url_for('main.gallery') }}">back gallery</a>
+    <a class="btn-link" href="{{ url_for('main.home') }}">back home</a>
+  </div>
+{% endblock %}

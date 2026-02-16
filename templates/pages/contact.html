@@ -1,1 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Contact</title><link rel="stylesheet" href="/static/styles.css" /></head><body><header><h1>Contact</h1></header><main><p>send word at <a href="mailto:keeper@nchy.dev">keeper@nchy.dev</a>.</p><nav><a href="/">home</a></nav></main></body></html>
+{% extends "layouts/public.html" %}
+
+{% block title %}Contact{% endblock %}
+{% block header_title %}Contact{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Contact</h2>
+    <p>Send word at <a href="mailto:keeper@nchy.dev">keeper@nchy.dev</a>.</p>
+  </section>
+{% endblock %}

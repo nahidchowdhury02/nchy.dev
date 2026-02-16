@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>{% block title %}INCXCNI{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>{% block header_title %}INCXCNI{% endblock %}</h1>
+    </header>
+
+    <nav class="app-nav" aria-label="Primary">
+      <div class="nav-pills">
+        {% block nav %}{% endblock %}
+      </div>
+    </nav>
+
+    <main class="content-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flash-list" role="status" aria-live="polite">
+            {% for category, message in messages %}
+              <li class="flash-item flash-{{ category|e }}"><strong>{{ category|upper }}</strong>: {{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">{% block footer %}Kept, not hurried.{% endblock %}</footer>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

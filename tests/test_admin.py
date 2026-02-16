@@ -1,3 +1,5 @@
+import io
+from pathlib import Path
 from datetime import datetime, timezone
 
 
@@ -89,3 +91,43 @@ def test_admin_gallery_create_and_delete(app, client):
     delete_response = client.post(f"/admin/gallery/{item['_id']}/delete", follow_redirects=False)
     assert delete_response.status_code == 302
     assert db.gallery_items.find_one({"_id": item["_id"]}) is None
+
+
+def test_admin_gallery_upload_falls_back_to_local_when_cloudinary_missing(app, client):
+    login(client)
+
+    response = client.post(
+        "/admin/gallery/upload",
+        data={"image": (io.BytesIO(b"fake image bytes"), "sample.png", "image/png")},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["image_url"].startswith("/media/gallery/")
+    assert payload["cloudinary_public_id"].startswith("mongo:")
+
+
+def test_admin_gallery_create_with_file_sets_image_url(app, client):
+    db = app.extensions["mongo_db"]
+    login(client)
+
+    create_response = client.post(
+        "/admin/gallery",
+        data={
+            "category": "sketches",
+            "title": "file sketch",
+            "caption": "with file",
+            "sort_order": "1",
+            "is_published": "1",
+            "image": (io.BytesIO(b"fake image bytes"), "file-sketch.png", "image/png"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=False,
+    )
+    assert create_response.status_code == 302
+
+    item = db.gallery_items.find_one({"title": "file sketch"})
+    assert item is not None
+    assert item["image_url"].startswith("/media/gallery/")
+    assert item["cloudinary_public_id"].startswith("mongo:")

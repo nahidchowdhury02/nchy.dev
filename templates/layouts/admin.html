@@ -1,0 +1,17 @@
+{% extends "layouts/base.html" %}
+
+{% block body_class %}admin-page{% endblock %}
+
+{% block nav %}
+  <a href="{{ url_for('admin.manage') }}">hall</a>
+  <a href="{{ url_for('admin.books') }}">books</a>
+  <a href="{{ url_for('admin.gallery') }}">gallery</a>
+  <a href="{{ url_for('admin.notes') }}">notes</a>
+  <a href="{{ url_for('main.home') }}">home</a>
+  {% if admin_authenticated %}
+    <form method="post" action="{{ url_for('admin.logout') }}" class="nav-inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <button type="submit" class="nav-button">leave</button>
+    </form>
+  {% endif %}
+{% endblock %}

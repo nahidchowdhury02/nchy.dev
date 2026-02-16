@@ -1,1 +1,11 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Music List</title><link rel="stylesheet" href="/static/styles.css" /></head><body><header><h1>Music List</h1></header><main><p>hymns for late hours.</p><nav><a href="/">home</a></nav></main></body></html>
+{% extends "layouts/public.html" %}
+
+{% block title %}Music List{% endblock %}
+{% block header_title %}Music List{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Music List</h2>
+    <p>Hymns for late hours.</p>
+  </section>
+{% endblock %}

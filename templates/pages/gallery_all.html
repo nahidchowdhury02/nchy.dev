@@ -1,43 +1,36 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery All</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body class="gallery-page gallery-subpage">
-  <main class="gallery-main">
-    <section class="gallery-title-box">
-      <p class="gallery-kicker">PUBLIC ARCHIVE</p>
-      <h1>ALL</h1>
-      <p class="gallery-subtitle">Combined archive view.</p>
-    </section>
+{% extends "layouts/public.html" %}
 
-    <section class="gallery-detail-grid" aria-label="All placeholders">
-      {% if items %}
-        {% for item in items %}
-          <article class="gallery-detail-tile">
-            {% if item.image_url %}
-              <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy" />
-            {% endif %}
-            <span>{{ item.title or 'archive item' }}</span>
-          </article>
-        {% endfor %}
-      {% else %}
-        <article class="gallery-detail-tile"><span>all slot 01 - image coming soon</span></article>
-        <article class="gallery-detail-tile"><span>all slot 02 - image coming soon</span></article>
-        <article class="gallery-detail-tile"><span>all slot 03 - image coming soon</span></article>
-        <article class="gallery-detail-tile"><span>all slot 04 - image coming soon</span></article>
-        <article class="gallery-detail-tile"><span>all slot 05 - image coming soon</span></article>
-        <article class="gallery-detail-tile"><span>all slot 06 - image coming soon</span></article>
-      {% endif %}
-    </section>
+{% block title %}Gallery All{% endblock %}
+{% block header_title %}All Gallery{% endblock %}
 
-    <nav class="gallery-nav" aria-label="All navigation">
-      <a class="gallery-btn" href="/gallery">back to gallery</a>
-      <a class="gallery-btn" href="/">back home</a>
-    </nav>
-  </main>
-</body>
-</html>
+{% block content %}
+  <section class="card">
+    <h2>Combined Archive</h2>
+    <p>All public gallery items in one stream.</p>
+  </section>
+
+  <section class="gallery-detail-grid" aria-label="All items">
+    {% if items %}
+      {% for item in items %}
+        <article class="card gallery-detail-tile">
+          {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media" loading="lazy" />
+            <span class="tile-title">{{ item.title or 'archive item' }}</span>
+          {% else %}
+            <span class="tile-title-empty">{{ item.title or 'archive item' }}</span>
+          {% endif %}
+        </article>
+      {% endfor %}
+    {% else %}
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">all slot 01</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">all slot 02</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">all slot 03</span></article>
+      <article class="card gallery-detail-tile"><span class="tile-title-empty">all slot 04</span></article>
+    {% endif %}
+  </section>
+
+  <div class="inline-actions" role="navigation" aria-label="All navigation">
+    <a class="btn-link" href="{{ url_for('main.gallery') }}">back gallery</a>
+    <a class="btn-link" href="{{ url_for('main.home') }}">back home</a>
+  </div>
+{% endblock %}

@@ -31,24 +31,33 @@ class GalleryService:
             return []
         return [self._serialize_item(item) for item in self.repo.list_admin(category=category)]
 
-    def create_item(self, payload: dict):
+    def create_item(self, payload: dict, file_storage=None):
         if not self.repo.available():
             raise RuntimeError("MongoDB is required for gallery management")
 
         item = self._validate_payload(payload)
+        self._attach_uploaded_image(item, file_storage)
         now = datetime.now(timezone.utc)
         item["created_at"] = now
         item["updated_at"] = now
         created = self.repo.insert_item(item)
         return self._serialize_item(created)
 
-    def update_item(self, item_id: str, payload: dict):
+    def update_item(self, item_id: str, payload: dict, file_storage=None):
         if not self.repo.available():
             raise RuntimeError("MongoDB is required for gallery management")
 
+        current_item = self.repo.get_by_id(item_id)
         item = self._validate_payload(payload)
+        self._attach_uploaded_image(item, file_storage)
         item["updated_at"] = datetime.now(timezone.utc)
         updated = self.repo.update_item(item_id, item)
+
+        new_public_id = item.get("cloudinary_public_id", "")
+        old_public_id = (current_item or {}).get("cloudinary_public_id", "")
+        if new_public_id and old_public_id and old_public_id != new_public_id:
+            delete_image(old_public_id)
+
         return self._serialize_item(updated)
 
     def delete_item(self, item_id: str):
@@ -104,6 +113,17 @@ class GalleryService:
         if normalized not in VALID_CATEGORIES:
             return "all"
         return normalized
+
+    def _attach_uploaded_image(self, item: dict, file_storage):
+        if not file_storage or not getattr(file_storage, "filename", ""):
+            return
+
+        if file_storage.mimetype not in VALID_MIME_TYPES:
+            raise ValueError("Unsupported image format")
+
+        upload_result = upload_image(file_storage)
+        item["image_url"] = upload_result["image_url"]
+        item["cloudinary_public_id"] = upload_result["public_id"]
 
     def count_items(self) -> int:
         if not self.repo.available():

@@ -1,17 +1,130 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Gallery Ward</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Gallery Ward</h1></header><main>
-{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
-<nav><a href="{{ url_for('admin.manage') }}">Hall</a><a href="{{ url_for('admin.books') }}">Books</a><a href="{{ url_for('admin.gallery') }}">Gallery</a><a href="{{ url_for('admin.notes') }}">Notes</a><a href="/">Home</a><form method="post" action="{{ url_for('admin.logout') }}" style="display:inline-block; margin-left:8px;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button type="submit">leave</button></form></nav>
-<section><h2>Upload image</h2><form id="upload-form" method="post" action="{{ url_for('admin.gallery_upload') }}" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" id="upload-csrf" /><input type="file" name="image" accept="image/*" required /><button type="submit">send</button></form><p id="upload-status"></p></section>
-<section><h2>New item</h2><form method="post" action="{{ url_for('admin.gallery') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-<p><label>Category</label><br /><select name="category"><option value="sketches">sketches</option><option value="moments">moments</option><option value="all">all</option></select></p>
-<p><label>Title</label><br /><input type="text" name="title" required /></p>
-<p><label>Caption</label><br /><textarea name="caption" rows="3" style="width:100%;"></textarea></p>
-<p><label>Image URL</label><br /><input type="url" name="image_url" id="create-image-url" /></p>
-<p><label>Cloudinary ID</label><br /><input type="text" name="cloudinary_public_id" id="create-public-id" /></p>
-<p><label>Sort</label><br /><input type="number" name="sort_order" value="0" /></p>
-<p><label><input type="checkbox" name="is_published" value="1" checked /> shown</label></p>
-<button type="submit">forge</button></form></section>
-<section><h2>Kept items</h2>{% for item in items %}<article style="border:1px solid #444; padding:1rem; margin-bottom:1rem; background:#fff;"><form method="post" action="{{ url_for('admin.gallery_update', item_id=item.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><p><label>Category</label><br /><select name="category"><option value="sketches" {% if item.category == 'sketches' %}selected{% endif %}>sketches</option><option value="moments" {% if item.category == 'moments' %}selected{% endif %}>moments</option><option value="all" {% if item.category == 'all' %}selected{% endif %}>all</option></select></p><p><label>Title</label><br /><input type="text" name="title" value="{{ item.title }}" required /></p><p><label>Caption</label><br /><textarea name="caption" rows="3" style="width:100%;">{{ item.caption }}</textarea></p><p><label>Image URL</label><br /><input type="url" name="image_url" value="{{ item.image_url }}" /></p><p><label>Cloudinary ID</label><br /><input type="text" name="cloudinary_public_id" value="{{ item.cloudinary_public_id }}" /></p><p><label>Sort</label><br /><input type="number" name="sort_order" value="{{ item.sort_order }}" /></p><p><label><input type="checkbox" name="is_published" value="1" {% if item.is_published %}checked{% endif %} /> shown</label></p><button type="submit">save</button></form><form method="post" action="{{ url_for('admin.gallery_delete', item_id=item.id) }}" onsubmit="return confirm('Remove this item?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button type="submit">remove</button></form></article>{% else %}<p>none yet.</p>{% endfor %}</section>
-</main><script>(function () {const uploadForm = document.getElementById("upload-form");const status = document.getElementById("upload-status");const imageUrlInput = document.getElementById("create-image-url");const publicIdInput = document.getElementById("create-public-id");if (!uploadForm) {return;}uploadForm.addEventListener("submit", async function (event) {event.preventDefault();status.textContent = "sending...";try {const formData = new FormData(uploadForm);const response = await fetch(uploadForm.action, {method: "POST",body: formData,});const data = await response.json();if (!response.ok) {status.textContent = data.error || "failed";return;}imageUrlInput.value = data.image_url || "";publicIdInput.value = data.cloudinary_public_id || "";status.textContent = "done. fields filled.";} catch (error) {status.textContent = "failed.";}});})();</script></body></html>
+{% extends "layouts/admin.html" %}
+
+{% block title %}Gallery Ward{% endblock %}
+{% block header_title %}Gallery Ward{% endblock %}
+
+{% block content %}
+  <section class="card form-card">
+    <h2>New item</h2>
+    <form method="post" action="{{ url_for('admin.gallery') }}" enctype="multipart/form-data" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-field">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="sketches">sketches</option>
+          <option value="moments">moments</option>
+          <option value="all">all</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" required />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="caption">Caption</label>
+        <textarea id="caption" name="caption" rows="3"></textarea>
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="image">Image file</label>
+        <input id="image" type="file" name="image" accept="image/*" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="create-image-url">Image URL</label>
+        <p class="small-note">Optional. Usually auto-filled from image upload.</p>
+        <input id="create-image-url" type="url" name="image_url" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="create-public-id">Cloudinary ID</label>
+        <input id="create-public-id" type="text" name="cloudinary_public_id" />
+      </div>
+
+      <div class="form-field">
+        <label for="sort_order">Sort</label>
+        <input id="sort_order" type="number" name="sort_order" value="0" />
+      </div>
+
+      <div class="form-field">
+        <label><input type="checkbox" name="is_published" value="1" checked /> shown</label>
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">forge</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2 class="section-title">Kept items</h2>
+    <div class="card-grid" aria-label="Kept gallery items">
+      {% for item in items %}
+        <article class="card admin-item">
+          <form method="post" action="{{ url_for('admin.gallery_update', item_id=item.id) }}" enctype="multipart/form-data" class="form-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="form-field">
+              <label>Category</label>
+              <select name="category">
+                <option value="sketches" {% if item.category == 'sketches' %}selected{% endif %}>sketches</option>
+                <option value="moments" {% if item.category == 'moments' %}selected{% endif %}>moments</option>
+                <option value="all" {% if item.category == 'all' %}selected{% endif %}>all</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label>Title</label>
+              <input type="text" name="title" value="{{ item.title }}" required />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Caption</label>
+              <textarea name="caption" rows="3">{{ item.caption }}</textarea>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Replace image file</label>
+              <input type="file" name="image" accept="image/*" />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Image URL</label>
+              <input type="url" name="image_url" value="{{ item.image_url }}" />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Cloudinary ID</label>
+              <input type="text" name="cloudinary_public_id" value="{{ item.cloudinary_public_id }}" />
+            </div>
+
+            <div class="form-field">
+              <label>Sort</label>
+              <input type="number" name="sort_order" value="{{ item.sort_order }}" />
+            </div>
+
+            <div class="form-field">
+              <label><input type="checkbox" name="is_published" value="1" {% if item.is_published %}checked{% endif %} /> shown</label>
+            </div>
+
+            <div class="form-field form-field-full">
+              <button type="submit">save</button>
+            </div>
+          </form>
+
+          <div class="item-actions">
+            <form method="post" action="{{ url_for('admin.gallery_delete', item_id=item.id) }}" onsubmit="return confirm('Remove this item?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit">remove</button>
+            </form>
+          </div>
+        </article>
+      {% else %}
+        <article class="card"><p>none yet.</p></article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

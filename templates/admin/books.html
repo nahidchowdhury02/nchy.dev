@@ -1,9 +1,58 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Books Ward</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Books Ward</h1></header><main>
-{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}{% for category, message in messages %}<p><strong>{{ category|upper }}</strong>: {{ message }}</p>{% endfor %}{% endif %}{% endwith %}
-<nav><a href="{{ url_for('admin.manage') }}">Hall</a><a href="{{ url_for('admin.books') }}">Books</a><a href="{{ url_for('admin.gallery') }}">Gallery</a><a href="{{ url_for('admin.notes') }}">Notes</a><a href="/">Home</a><form method="post" action="{{ url_for('admin.logout') }}" style="display:inline-block; margin-left:8px;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}" /><button type="submit">leave</button></form></nav>
-<form method="get" action="{{ url_for('admin.books') }}"><input type="text" name="q" value="{{ query }}" placeholder="seek title/author" /><button type="submit">seek</button></form>
-<p>shown: {{ books|length }}</p>
-<table border="1" cellpadding="8" cellspacing="0" style="width:100%; background:#fff;"><thead><tr><th>Title</th><th>Author(s)</th><th>Year</th><th>Slug</th><th>Edit</th></tr></thead><tbody>{% for book in books %}<tr><td>{{ book.title }}</td><td>{{ book.author }}</td><td>{{ book.first_publish_year or '-' }}</td><td>{{ book.slug }}</td><td><a href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a></td></tr>{% else %}<tr><td colspan="5">none found.</td></tr>{% endfor %}</tbody></table>
-</main></body></html>
+{% extends "layouts/admin.html" %}
+
+{% block title %}Books Ward{% endblock %}
+{% block header_title %}Books Ward{% endblock %}
+
+{% block content %}
+  <section class="card form-card">
+    <h2>Seek books</h2>
+    <form method="get" action="{{ url_for('admin.books') }}" class="inline-form">
+      <input type="text" name="q" value="{{ query }}" placeholder="seek title/author" />
+      <button type="submit">seek</button>
+    </form>
+    <p class="small-note">shown: {{ books|length }}</p>
+  </section>
+
+  <section class="books-cards" aria-label="Books mobile cards">
+    {% for book in books %}
+      <article class="card book-card">
+        <h3>{{ book.title }}</h3>
+        <p class="book-meta">Author(s): {{ book.author or '-' }}</p>
+        <p class="book-meta">Year: {{ book.first_publish_year or '-' }}</p>
+        <p class="book-meta">Slug: {{ book.slug }}</p>
+        <a class="btn-link" href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a>
+      </article>
+    {% else %}
+      <article class="card"><p>none found.</p></article>
+    {% endfor %}
+  </section>
+
+  <section class="books-table card" aria-label="Books desktop table">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author(s)</th>
+          <th>Year</th>
+          <th>Slug</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for book in books %}
+          <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.first_publish_year or '-' }}</td>
+            <td>{{ book.slug }}</td>
+            <td><a href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a></td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="5">none found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

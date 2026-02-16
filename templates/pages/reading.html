@@ -1,3 +1,23 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Reading List</title><link rel="stylesheet" href="/static/styles.css" /></head>
-<body><header><h1>Reading List</h1></header><main><p>volumes kept in Mongo.</p><section class="link-grid">{% for book in books %}<article><h3>{{ book.title or book.original_title }}</h3><p>{{ (book.authors or [])|join(', ') }}</p></article>{% else %}<article><p>no books yet.</p></article>{% endfor %}</section><nav><a href="/">home</a></nav></main></body></html>
+{% extends "layouts/public.html" %}
+
+{% block title %}Reading List{% endblock %}
+{% block header_title %}Reading List{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Reading List</h2>
+    <p>Volumes kept in MongoDB.</p>
+  </section>
+
+  <section class="card-grid" aria-label="Reading list">
+    {% for book in books %}
+      <article class="card">
+        <h3>{{ book.title or book.original_title }}</h3>
+        <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>
+        <p class="book-meta">{{ book.first_publish_year or 'year unknown' }}</p>
+      </article>
+    {% else %}
+      <article class="card"><p>no books yet.</p></article>
+    {% endfor %}
+  </section>
+{% endblock %}

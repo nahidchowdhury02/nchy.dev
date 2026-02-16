@@ -1,28 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gallery</title>
-  <link rel="stylesheet" href="/static/styles.css" />
-</head>
-<body class="gallery-shot-page">
-  <main class="gallery-shot-main">
-    <section class="gallery-shot-title-box">
-      <p class="gallery-shot-kicker">PUBLIC ARCHIVE</p>
-      <h1>GALLARY</h1>
-      <p class="gallery-shot-subtitle">SKETCHES, ART AND FRAGMENTS OF TIME.</p>
-    </section>
+{% extends "layouts/public.html" %}
 
-    <section class="gallery-shot-grid gallery-shot-grid-two" aria-label="Gallery routes">
-      <article class="gallery-shot-card gallery-shot-card-sketches">
-        <a class="gallery-shot-btn" href="/gallery/sketches">see sketches</a>
-      </article>
+{% block title %}Gallery{% endblock %}
+{% block header_title %}Gallery{% endblock %}
 
-      <article class="gallery-shot-card gallery-shot-card-moments">
-        <a class="gallery-shot-btn" href="/gallery/moments">see moments</a>
-      </article>
-    </section>
-  </main>
-</body>
-</html>
+{% block content %}
+  <section class="card">
+    <h2>Public Archive</h2>
+    <p>Sketches, moments, and combined records.</p>
+  </section>
+
+  <section class="gallery-route-grid" aria-label="Gallery routes">
+    <article class="card gallery-route-card">
+      <h3>Sketches</h3>
+      <p>Draft lines, paper grains, and studies in progress.</p>
+      <a class="btn-link" href="{{ url_for('main.gallery_sketches') }}">see sketches</a>
+    </article>
+
+    <article class="card gallery-route-card">
+      <h3>Moments</h3>
+      <p>Temporary records and scenes.</p>
+      <a class="btn-link" href="{{ url_for('main.gallery_moments') }}">see moments</a>
+    </article>
+
+    <article class="card gallery-route-card">
+      <h3>All</h3>
+      <p>Combined archive view.</p>
+      <a class="btn-link" href="{{ url_for('main.gallery_all') }}">see all</a>
+    </article>
+  </section>
+{% endblock %}
