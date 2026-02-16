@@ -1,12 +1,13 @@
 import time
 import requests
 
-url = "http://127.0.0.1:5000/"
+URL = "http://127.0.0.1:5000/"
+INTERVAL_SECONDS = 3
 
 while True:
     try:
-        r = requests.get(url)
+        r = requests.get(URL)
         print(f"Refreshed: {r.status_code}")
     except Exception as e:
         print("Error:", e)
-    time.sleep(3)
+    time.sleep(INTERVAL_SECONDS)

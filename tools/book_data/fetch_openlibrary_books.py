@@ -1,5 +1,10 @@
 import requests
 import json
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "input_titles.txt"
+OUTPUT_FILE = BASE_DIR / "books_info.json"
 
 # Function to fetch book information from Open Library API
 def fetch_book_info(book_query):
@@ -19,10 +24,10 @@ def fetch_book_info(book_query):
         return None
 
 # Function to save the book data to a JSON file incrementally
-def save_to_json(book_data, filename='books_info.json'):
+def save_to_json(book_data, filename=OUTPUT_FILE):
     # Try to load existing data if the file already exists
     try:
-        with open(filename, 'r') as json_file:
+        with filename.open('r', encoding='utf-8') as json_file:
             books = json.load(json_file)
     except (FileNotFoundError, json.JSONDecodeError):
         books = []  # If file does not exist or is empty, start with an empty list
@@ -31,12 +36,12 @@ def save_to_json(book_data, filename='books_info.json'):
     books.append(book_data)
 
     # Write the updated list back to the file
-    with open(filename, 'w') as json_file:
+    with filename.open('w', encoding='utf-8') as json_file:
         json.dump(books, json_file, indent=4)
 
 # Function to read the txt file and process each line
 def process_books_from_file(filename):
-    with open(filename, 'r') as file:
+    with filename.open('r', encoding='utf-8') as file:
         for line in file:
             # Clean and split the line into book title and author
             parts = line.strip().split(' ', 1)  # Split at the first space to separate title and author
@@ -72,5 +77,4 @@ def process_books_from_file(filename):
 
 # Main function
 if __name__ == "__main__":
-    filename = 'data.txt'  # Change this to the path of your text file
-    process_books_from_file(filename)
+    process_books_from_file(INPUT_FILE)

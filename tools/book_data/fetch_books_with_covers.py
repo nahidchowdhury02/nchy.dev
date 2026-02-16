@@ -1,10 +1,11 @@
 import json
 import requests
 import time
-import os
+from pathlib import Path
 
-INPUT_FILE = "data.txt"
-OUTPUT_FILE = "google_results.json"
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "input_titles.txt"
+OUTPUT_FILE = BASE_DIR / "google_results.json"
 
 def fetch_google_data(title, author):
     """Query Google Books API using both title and author."""
@@ -63,8 +64,8 @@ def fetch_openlib_cover(title, author):
 
 def load_existing_results():
     """Load already saved books (to avoid duplicates)."""
-    if os.path.exists(OUTPUT_FILE):
-        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+    if OUTPUT_FILE.exists():
+        with OUTPUT_FILE.open("r", encoding="utf-8") as f:
             try:
                 return json.load(f)
             except json.JSONDecodeError:
@@ -73,7 +74,7 @@ def load_existing_results():
 
 def save_results(results):
     """Save entire results to the output file."""
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    with OUTPUT_FILE.open("w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
 
 def split_title_author(line):
@@ -88,8 +89,7 @@ def split_title_author(line):
     return title, author
 
 def main():
-    # Read lines from data.txt
-    with open(INPUT_FILE, "r", encoding="utf-8") as f:
+    with INPUT_FILE.open("r", encoding="utf-8") as f:
         lines = [line.strip() for line in f if line.strip()]
 
     results = load_existing_results()
