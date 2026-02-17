@@ -1,3 +1,5 @@
+import certifi
+
 from pymongo import ASCENDING, DESCENDING, TEXT, MongoClient
 from pymongo.errors import PyMongoError
 from pymongo.server_api import ServerApi
@@ -16,7 +18,23 @@ def init_db(app):
         return
 
     try:
-        client = MongoClient(uri, server_api=ServerApi("1"))
+        client_options = {
+            "server_api": ServerApi("1"),
+            "connectTimeoutMS": app.config.get("MONGODB_CONNECT_TIMEOUT_MS", 20000),
+            "socketTimeoutMS": app.config.get("MONGODB_SOCKET_TIMEOUT_MS", 20000),
+            "serverSelectionTimeoutMS": app.config.get("MONGODB_SERVER_SELECTION_TIMEOUT_MS", 30000),
+        }
+
+        if app.config.get("MONGODB_TLS", True):
+            ca_file = app.config.get("MONGODB_TLS_CA_FILE") or certifi.where()
+            client_options.update(
+                {
+                    "tls": True,
+                    "tlsCAFile": ca_file,
+                }
+            )
+
+        client = MongoClient(uri, **client_options)
         client.admin.command("ping")
         db = client[db_name]
 

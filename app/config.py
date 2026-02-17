@@ -19,6 +19,11 @@ class Config:
 
     MONGODB_URI = os.getenv("MONGODB_URI", "")
     MONGODB_DB_NAME = os.getenv("MONGODB_DB_NAME", "archive")
+    MONGODB_TLS = env_bool("MONGODB_TLS", True)
+    MONGODB_TLS_CA_FILE = os.getenv("MONGODB_TLS_CA_FILE", "").strip()
+    MONGODB_CONNECT_TIMEOUT_MS = int(os.getenv("MONGODB_CONNECT_TIMEOUT_MS", "20000"))
+    MONGODB_SOCKET_TIMEOUT_MS = int(os.getenv("MONGODB_SOCKET_TIMEOUT_MS", "20000"))
+    MONGODB_SERVER_SELECTION_TIMEOUT_MS = int(os.getenv("MONGODB_SERVER_SELECTION_TIMEOUT_MS", "30000"))
 
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "").strip()
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
