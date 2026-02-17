@@ -60,9 +60,6 @@ def login():
         return render_template("admin/login.html", next_path=next_path or "")
 
     auth_service = _auth_service()
-    if not auth_service.available():
-        flash("MongoDB is unavailable. Admin login is disabled.", "error")
-        return render_template("admin/login.html", next_path=next_path or ""), 503
 
     now = time.time()
     locked_until = session.get("admin_locked_until", 0)
@@ -74,7 +71,24 @@ def login():
     username = (request.form.get("username") or "").strip()
     password = request.form.get("password") or ""
 
-    user = auth_service.authenticate_admin(username=username, password=password)
+    user = None
+    if auth_service.available():
+        user = auth_service.authenticate_admin(username=username, password=password)
+    else:
+        fallback_username = (current_app.config.get("ADMIN_USERNAME") or "").strip()
+        fallback_password = current_app.config.get("ADMIN_PASSWORD") or ""
+        if (
+            fallback_username
+            and fallback_password
+            and username == fallback_username
+            and password == fallback_password
+        ):
+            user = {
+                "id": f"env:{fallback_username}",
+                "username": fallback_username,
+            }
+            flash("Database unavailable. Signed in using environment credentials.", "warning")
+
     if not user:
         failed = int(session.get("admin_failed_attempts", 0)) + 1
         session["admin_failed_attempts"] = failed

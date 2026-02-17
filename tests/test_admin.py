@@ -28,6 +28,15 @@ def test_admin_login_invalid_password(client):
     assert response.status_code == 401
 
 
+def test_admin_login_falls_back_to_env_when_db_unavailable(client):
+    client.application.extensions["mongo_db"] = None
+    client.application.extensions["mongo_client"] = None
+
+    response = login(client)
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/admin/manage")
+
+
 def test_admin_book_edit_updates_record(app, client):
     db = app.extensions["mongo_db"]
     now = datetime.now(timezone.utc)
