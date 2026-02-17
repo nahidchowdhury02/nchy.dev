@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime
 
 from flask import Flask, session
 
@@ -31,6 +32,10 @@ def create_app(config_class=Config):
     configure_media_storage(app)
     bootstrap_admin_from_env(app)
 
+    @app.template_filter("pretty_date")
+    def pretty_date(value):
+        return _pretty_date(value)
+
     app.register_blueprint(main_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(admin_bp)
@@ -43,6 +48,35 @@ def create_app(config_class=Config):
         }
 
     return app
+
+
+def _ordinal_day(day: int) -> str:
+    if 11 <= day % 100 <= 13:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+    return f"{day}{suffix}"
+
+
+def _pretty_date(value) -> str:
+    if not value:
+        return ""
+
+    parsed = value
+    if isinstance(value, str):
+        candidate = value.strip()
+        if candidate.endswith("Z"):
+            candidate = candidate[:-1] + "+00:00"
+        try:
+            parsed = datetime.fromisoformat(candidate)
+        except ValueError:
+            return value
+
+    if not hasattr(parsed, "strftime"):
+        return str(value)
+
+    month = parsed.strftime("%B")
+    return f"{month} {_ordinal_day(parsed.day)}, {parsed.year}"
 
 
 def bootstrap_admin_from_env(app):

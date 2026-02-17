@@ -5,8 +5,8 @@
 
 {% block content %}
   <section class="card">
-    <h2>Notes</h2>
-    <p>why something became what it is and other stuff</p>
+    <h2>Logs, Notes and Journals</h2>
+    <p>why something became what it is and other ramblings in my head</p>
   </section>
 
   <section class="card-grid" aria-label="Public notes and logs">
@@ -14,7 +14,7 @@
       <article class="card">
         <h3>[{{ entry.kind|upper }}] {{ entry.title }}</h3>
         <p class="entry-body">{{ entry.body }}</p>
-        <p class="small-note">{{ entry.created_at }}</p>
+        <p class="small-note">{{ entry.created_at|pretty_date }}</p>
       </article>
     {% else %}
       <article class="card"><p>no entries yet.</p></article>

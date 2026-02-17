@@ -82,7 +82,7 @@
             </div>
           </form>
           <p class="small-note">
-            shown: {{ entry.is_published }} | {{ entry.created_at }}
+            shown: {{ entry.is_published }} | {{ entry.created_at|pretty_date }}
             {% if entry.source_filename %}| src: {{ entry.source_filename }}{% endif %}
           </p>
         </article>

@@ -1,16 +1,16 @@
 :root {
-  --bg: #f5f7fb;
+  --bg: #f2f2f2;
   --surface: #ffffff;
-  --surface-muted: #f0f4ff;
-  --surface-accent: #e7eeff;
-  --text: #111827;
-  --text-soft: #475467;
-  --line: #d8e0f0;
-  --brand: #2f5bea;
+  --surface-muted: #f0f0f0;
+  --surface-accent: #e6e6e6;
+  --text: #111111;
+  --text-soft: #4d4d4d;
+  --line: #d9d9d9;
+  --brand: #111111;
   --brand-ink: #ffffff;
-  --danger: #b42318;
-  --warning: #b54708;
-  --success: #067647;
+  --danger: #222222;
+  --warning: #333333;
+  --success: #000000;
   --radius-sm: 0.625rem;
   --radius-md: 0.875rem;
   --radius-lg: 1rem;
@@ -31,9 +31,9 @@ body {
 }
 
 body {
-  background: linear-gradient(180deg, #f7f9fc 0%, #eef3ff 55%, #f7f9fc 100%);
+  background: linear-gradient(180deg, #f7f7f7 0%, #ececec 55%, #f7f7f7 100%);
   color: var(--text);
-  font-family: "Segoe UI", "SF Pro Text", "SF Pro Display", "Roboto", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Courier New", Courier, "Lucida Console", "Liberation Mono", monospace;
   line-height: 1.5;
   text-wrap: pretty;
   overflow-x: hidden;
@@ -154,7 +154,7 @@ svg {
 .nav-pills a:hover,
 .nav-button:hover {
   background: var(--surface-accent);
-  border-color: #c7d6fb;
+  border-color: #bdbdbd;
   transform: translateY(-1px);
 }
 
@@ -165,7 +165,7 @@ button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #4a73ee;
+  outline: 2px solid #222222;
   outline-offset: 2px;
 }
 
@@ -196,18 +196,18 @@ select:focus-visible {
 }
 
 .flash-error {
-  border-color: #efb0aa;
-  background: #fff3f1;
+  border-color: #c7c7c7;
+  background: #f5f5f5;
 }
 
 .flash-success {
-  border-color: #95ddbf;
-  background: #ecfff5;
+  border-color: #bdbdbd;
+  background: #f0f0f0;
 }
 
 .flash-warning {
-  border-color: #f2c184;
-  background: #fff8ef;
+  border-color: #c9c9c9;
+  background: #f3f3f3;
 }
 
 .card {
@@ -253,9 +253,9 @@ select:focus-visible {
   min-height: 44px;
   padding: 0.55rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid #bfd0ff;
-  background: #dbe6ff;
-  color: #0b2b88;
+  border: 1px solid #bcbcbc;
+  background: #ececec;
+  color: #1a1a1a;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -321,9 +321,9 @@ select:focus-visible {
   min-height: 44px;
   padding: 0.58rem 0.95rem;
   border-radius: 0.7rem;
-  border: 1px solid #b9caf7;
-  background: #dbe6ff;
-  color: #123190;
+  border: 1px solid #bdbdbd;
+  background: #ececec;
+  color: #1a1a1a;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -373,7 +373,7 @@ select {
   min-height: 44px;
   padding: 0.56rem 0.7rem;
   border-radius: 0.65rem;
-  border: 1px solid #bfcced;
+  border: 1px solid #c2c2c2;
   background: #fff;
   color: var(--text);
 }
@@ -387,7 +387,7 @@ button {
   min-height: 44px;
   padding: 0.58rem 0.95rem;
   border-radius: 0.7rem;
-  border: 1px solid #264fcf;
+  border: 1px solid #111111;
   background: var(--brand);
   color: var(--brand-ink);
   cursor: pointer;
@@ -395,7 +395,7 @@ button {
 }
 
 button:hover {
-  background: #244bc0;
+  background: #000000;
 }
 
 .small-note {
@@ -493,7 +493,7 @@ button:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 18, 38, 0.1), rgba(10, 18, 38, 0.66));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.68));
   z-index: 1;
 }
 
@@ -515,7 +515,7 @@ button:hover {
 .tile-title-empty {
   position: relative;
   z-index: 2;
-  color: #0f172a;
+  color: #111111;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 999px;
   padding: 0.45rem 0.8rem;
@@ -529,7 +529,7 @@ button:hover {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(12, 18, 32, 0.85);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -564,7 +564,7 @@ body.lightbox-open {
   border-radius: 0.75rem;
   overflow: hidden;
   border: 1px solid var(--line);
-  background: #0f172a;
+  background: #111111;
 }
 
 .music-embed-wrap iframe {
