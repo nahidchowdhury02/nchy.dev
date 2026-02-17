@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..utils import serialize_doc
+from ..utils import maybe_object_id, serialize_doc
 
 
 class NotesRepository:
@@ -28,6 +28,23 @@ class NotesRepository:
         result = self.collection.insert_one(payload)
         created = self.collection.find_one({"_id": result.inserted_id})
         return serialize_doc(created)
+
+    def update_entry(self, entry_id: str, payload: dict):
+        if self.collection is None:
+            raise RuntimeError("Database unavailable")
+        object_id = maybe_object_id(entry_id)
+        if not object_id:
+            return None
+        self.collection.update_one({"_id": object_id}, {"$set": payload})
+        return self.get_by_id(entry_id)
+
+    def get_by_id(self, entry_id: str):
+        if self.collection is None:
+            return None
+        object_id = maybe_object_id(entry_id)
+        if not object_id:
+            return None
+        return serialize_doc(self.collection.find_one({"_id": object_id}))
 
     def count_entries(self) -> int:
         if self.collection is None:

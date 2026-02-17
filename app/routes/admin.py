@@ -172,6 +172,28 @@ def notes():
     return render_template("admin/manage/notes.html", entries=entries)
 
 
+@admin_bp.route("/notes/<entry_id>", methods=["POST"])
+@require_admin
+def notes_update(entry_id):
+    notes_service = _notes_service()
+    try:
+        updated = notes_service.update_entry(entry_id, request.form, request.files.get("upload_file"))
+        if not updated:
+            flash("Notes/log entry not found", "error")
+        else:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="notes.update",
+                entity="notes_log",
+                entity_id=entry_id,
+            )
+            flash("Notes/log entry updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+
+    return redirect(url_for("admin.notes"))
+
+
 @admin_bp.route("/books/<book_id>/edit", methods=["GET", "POST"])
 @require_admin
 def book_edit(book_id):

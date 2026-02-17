@@ -46,10 +46,45 @@
     <h2 class="section-title">Kept entries</h2>
     <div class="card-grid" aria-label="Kept notes">
       {% for entry in entries %}
-        <article class="card">
-          <h3>[{{ entry.kind|upper }}] {{ entry.title }}</h3>
-          <p class="entry-body">{{ entry.body }}</p>
-          <p class="small-note">shown: {{ entry.is_published }} | {{ entry.created_at }}</p>
+        <article class="card admin-item">
+          <form method="post" action="{{ url_for('admin.notes_update', entry_id=entry.id) }}" enctype="multipart/form-data" class="form-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="form-field">
+              <label>Kind</label>
+              <select name="kind">
+                <option value="note" {% if entry.kind == 'note' %}selected{% endif %}>note</option>
+                <option value="log" {% if entry.kind == 'log' %}selected{% endif %}>log</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label>Title</label>
+              <input type="text" name="title" value="{{ entry.title }}" required />
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Body</label>
+              <textarea name="body" rows="8" required>{{ entry.body }}</textarea>
+            </div>
+
+            <div class="form-field form-field-full">
+              <label>Replace from file (.txt/.md/.log)</label>
+              <input type="file" name="upload_file" accept=".txt,.md,.log,text/plain" />
+            </div>
+
+            <div class="form-field">
+              <label><input type="checkbox" name="is_published" value="1" {% if entry.is_published %}checked{% endif %} /> show on /notes</label>
+            </div>
+
+            <div class="form-field form-field-full">
+              <button type="submit">save</button>
+            </div>
+          </form>
+          <p class="small-note">
+            shown: {{ entry.is_published }} | {{ entry.created_at }}
+            {% if entry.source_filename %}| src: {{ entry.source_filename }}{% endif %}
+          </p>
         </article>
       {% else %}
         <article class="card"><p>none yet.</p></article>

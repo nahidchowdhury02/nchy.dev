@@ -28,8 +28,7 @@ def _music_service() -> MusicService:
 
 @main_bp.route("/")
 def home():
-    preview_books = _books_service().list_preview_books(limit=8)
-    return render_template("pages/index.html", preview_books=preview_books)
+    return render_template("pages/index.html")
 
 
 @main_bp.route("/gallery")

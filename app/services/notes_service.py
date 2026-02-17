@@ -29,16 +29,39 @@ class NotesService:
     def create_entry(self, form_data, file_storage=None):
         if not self.repo.available():
             raise RuntimeError("MongoDB is required for notes/log uploads")
+        payload = self._validate_payload(form_data, file_storage=file_storage)
+        payload["created_at"] = datetime.now(timezone.utc)
+        return self._serialize_entry(self.repo.insert_entry(payload))
 
+    def update_entry(self, entry_id: str, form_data, file_storage=None):
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for notes/log uploads")
+
+        current_entry = self.repo.get_by_id(entry_id)
+        if not current_entry:
+            return None
+
+        payload = self._validate_payload(form_data, file_storage=file_storage, current_entry=current_entry)
+        payload["updated_at"] = datetime.now(timezone.utc)
+        return self._serialize_entry(self.repo.update_entry(entry_id, payload))
+
+    def count_entries(self) -> int:
+        if not self.repo.available():
+            return 0
+        return self.repo.count_entries()
+
+    def _validate_payload(self, form_data, file_storage=None, current_entry: dict | None = None):
         kind = (form_data.get("kind") or "note").strip().lower()
         if kind not in VALID_KINDS:
             kind = "note"
 
         title = (form_data.get("title") or "").strip()
         body = (form_data.get("body") or "").strip()
+        source_filename = (current_entry or {}).get("source_filename", "")
 
         if file_storage and file_storage.filename:
             body = self._read_uploaded_text(file_storage)
+            source_filename = file_storage.filename
             if not title:
                 title = file_storage.filename
 
@@ -49,20 +72,13 @@ class NotesService:
 
         is_published = str(form_data.get("is_published", "")).lower() in {"1", "true", "yes", "on"}
 
-        payload = {
+        return {
             "kind": kind,
             "title": title,
             "body": body,
             "is_published": is_published,
-            "source_filename": file_storage.filename if file_storage and file_storage.filename else "",
-            "created_at": datetime.now(timezone.utc),
+            "source_filename": source_filename,
         }
-        return self._serialize_entry(self.repo.insert_entry(payload))
-
-    def count_entries(self) -> int:
-        if not self.repo.available():
-            return 0
-        return self.repo.count_entries()
 
     def _read_uploaded_text(self, file_storage):
         filename = (file_storage.filename or "").lower()

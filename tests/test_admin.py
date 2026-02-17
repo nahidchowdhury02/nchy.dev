@@ -142,3 +142,38 @@ def test_admin_gallery_create_with_file_sets_image_url(app, client):
     assert item is not None
     assert item["image_url"].startswith("/media/gallery/")
     assert item["storage_public_id"].startswith("mongo:")
+
+
+def test_admin_notes_update_existing_entry(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    inserted = db.notes_logs.insert_one(
+        {
+            "kind": "note",
+            "title": "Original",
+            "body": "Original body",
+            "is_published": True,
+            "source_filename": "seed.md",
+            "created_at": now,
+        }
+    )
+
+    login(client)
+    response = client.post(
+        f"/admin/notes/{inserted.inserted_id}",
+        data={
+            "kind": "log",
+            "title": "Updated",
+            "body": "Updated body",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    updated = db.notes_logs.find_one({"_id": inserted.inserted_id})
+    assert updated is not None
+    assert updated["kind"] == "log"
+    assert updated["title"] == "Updated"
+    assert updated["body"] == "Updated body"
+    assert updated["is_published"] is False
+    assert updated["source_filename"] == "seed.md"
