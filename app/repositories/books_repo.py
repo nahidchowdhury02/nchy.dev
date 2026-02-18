@@ -95,6 +95,22 @@ class BooksRepository:
         doc = self.collection.find_one({"_id": object_id})
         return serialize_doc(doc)
 
+    def list_by_ids(self, book_ids: list[str]):
+        if self.collection is None:
+            return []
+
+        object_ids = []
+        for book_id in book_ids:
+            object_id = maybe_object_id(book_id)
+            if object_id:
+                object_ids.append(object_id)
+
+        if not object_ids:
+            return []
+
+        docs = self.collection.find({"_id": {"$in": object_ids}})
+        return [serialize_doc(doc) for doc in docs]
+
     def update_book(self, book_id: str, update_fields: dict[str, Any]):
         if self.collection is None:
             raise RuntimeError("Database unavailable")

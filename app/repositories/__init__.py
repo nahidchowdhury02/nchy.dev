@@ -4,6 +4,8 @@ from .books_repo import BooksRepository
 from .gallery_repo import GalleryRepository
 from .music_repo import MusicRepository
 from .notes_repo import NotesRepository
+from .reading_repo import ReadingRepository
+from .site_settings_repo import SiteSettingsRepository
 
 __all__ = [
     "AdminRepository",
@@ -12,4 +14,6 @@ __all__ = [
     "GalleryRepository",
     "MusicRepository",
     "NotesRepository",
+    "ReadingRepository",
+    "SiteSettingsRepository",
 ]

@@ -6,26 +6,20 @@
 {% block content %}
   <section class="card">
     <h2>Public Archive</h2>
-    <p>Sketches, moments, and combined records.</p>
+    <p>fragments of time, sketches, paintings etc</p>
   </section>
 
   <section class="gallery-route-grid" aria-label="Gallery routes">
     <article class="card gallery-route-card">
       <h3>Sketches</h3>
-      <p>pencil stuff mostly</p>
+      <p>drawings that i've made over time</p>
       <a class="btn-link" href="{{ url_for('main.gallery_sketches') }}">see sketches</a>
     </article>
 
     <article class="card gallery-route-card">
       <h3>Moments</h3>
-      <p>memories and "photography"</p>
+      <p>pictures that ive taken</p>
       <a class="btn-link" href="{{ url_for('main.gallery_moments') }}">see moments</a>
-    </article>
-
-    <article class="card gallery-route-card">
-      <h3>All</h3>
-      <p>Combined archive view.</p>
-      <a class="btn-link" href="{{ url_for('main.gallery_all') }}">see all</a>
     </article>
   </section>
 {% endblock %}

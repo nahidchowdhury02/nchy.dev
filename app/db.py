@@ -60,6 +60,8 @@ def ensure_indexes(db):
     db.books.create_index([("slug", ASCENDING)], unique=True)
     db.books.create_index([("title", TEXT), ("authors", TEXT)], name="books_text_search")
     db.books.create_index([("updated_at", DESCENDING)])
+    db.reading_list.create_index([("book_id", ASCENDING)], unique=True)
+    db.reading_list.create_index([("created_at", DESCENDING)])
 
     db.gallery_items.create_index([("category", ASCENDING), ("sort_order", ASCENDING)])
     db.gallery_items.create_index([("is_published", ASCENDING)])
@@ -71,3 +73,4 @@ def ensure_indexes(db):
     db.audit_logs.create_index([("timestamp", DESCENDING)])
     db.notes_logs.create_index([("created_at", DESCENDING)])
     db.notes_logs.create_index([("is_published", ASCENDING)])
+    db.site_settings.create_index([("key", ASCENDING)], unique=True)

@@ -6,6 +6,8 @@ from ..services.books_service import BooksService
 from ..services.gallery_service import GalleryService
 from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
+from ..services.reading_service import ReadingService
+from ..services.site_settings_service import SiteSettingsService
 
 main_bp = Blueprint("main", __name__)
 
@@ -26,9 +28,20 @@ def _music_service() -> MusicService:
     return MusicService(get_db())
 
 
+def _site_settings_service() -> SiteSettingsService:
+    return SiteSettingsService(get_db())
+
+
+def _reading_service() -> ReadingService:
+    return ReadingService(get_db())
+
+
 @main_bp.route("/")
 def home():
-    return render_template("pages/index.html")
+    return render_template(
+        "pages/index.html",
+        notice_banner_text=_site_settings_service().get_home_notice_banner_text(),
+    )
 
 
 @main_bp.route("/gallery")
@@ -41,6 +54,20 @@ def github_research():
     return render_template("pages/github_research.html")
 
 
+@main_bp.route("/books")
+def books():
+    page_data = _books_service().list_public_books_page(page_raw=request.args.get("page"), per_page_raw="24")
+    return render_template(
+        "pages/books.html",
+        books=page_data["items"],
+        page=page_data["page"],
+        total_pages=page_data["total_pages"],
+        total_books=page_data["total"],
+        has_prev=page_data["has_prev"],
+        has_next=page_data["has_next"],
+    )
+
+
 @main_bp.route("/music")
 def music():
     links = _music_service().list_public_links()
@@ -49,7 +76,7 @@ def music():
 
 @main_bp.route("/reading")
 def reading():
-    page_data = _books_service().list_public_books_page(page_raw=request.args.get("page"), per_page_raw="24")
+    page_data = _reading_service().list_public_books_page(page_raw=request.args.get("page"), per_page_raw="24")
     return render_template(
         "pages/reading.html",
         books=page_data["items"],

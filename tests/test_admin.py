@@ -77,6 +77,41 @@ def test_admin_book_edit_updates_record(app, client):
     assert updated["authors"] == ["New Author"]
 
 
+def test_admin_reading_add_and_remove(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    inserted = db.books.insert_one(
+        {
+            "slug": "reading-sample-book",
+            "original_title": "Reading Sample Book",
+            "title": "Reading Sample Book",
+            "subtitle": "",
+            "authors": ["Reader Author"],
+            "first_publish_year": 2024,
+            "cover_url": "https://example.com/reading.jpg",
+            "description": "reading",
+            "google_info": None,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+
+    login(client)
+    add_response = client.post(
+        "/admin/reading",
+        data={"book_id": str(inserted.inserted_id)},
+        follow_redirects=False,
+    )
+    assert add_response.status_code == 302
+
+    entry = db.reading_list.find_one({"book_id": inserted.inserted_id})
+    assert entry is not None
+
+    remove_response = client.post(f"/admin/reading/{entry['_id']}/delete", follow_redirects=False)
+    assert remove_response.status_code == 302
+    assert db.reading_list.find_one({"_id": entry["_id"]}) is None
+
+
 def test_admin_gallery_create_and_delete(app, client):
     db = app.extensions["mongo_db"]
 
@@ -177,3 +212,35 @@ def test_admin_notes_update_existing_entry(app, client):
     assert updated["body"] == "Updated body"
     assert updated["is_published"] is False
     assert updated["source_filename"] == "seed.md"
+
+
+def test_admin_manage_updates_home_notice_banner(app, client):
+    db = app.extensions["mongo_db"]
+
+    login(client)
+    response = client.post(
+        "/admin/manage",
+        data={"home_notice_banner_text": "a changed notice from admin"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/admin/manage")
+
+    setting = db.site_settings.find_one({"key": "home_notice_banner_text"})
+    assert setting is not None
+    assert setting["value"] == "a changed notice from admin"
+
+    audit_entry = db.audit_logs.find_one({"action": "settings.update", "entity_id": "home_notice_banner_text"})
+    assert audit_entry is not None
+
+
+def test_home_page_uses_managed_notice_banner(app, client):
+    db = app.extensions["mongo_db"]
+    db.site_settings.insert_one({"key": "home_notice_banner_text", "value": "managed banner text"})
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "managed banner text" in html

@@ -1,0 +1,47 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Books{% endblock %}
+{% block header_title %}Books{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Library</h2>
+    <p>{{ total_books }} total books. Page {{ page }} of {{ total_pages }}.</p>
+  </section>
+
+  <section class="card-grid" aria-label="Books library list">
+    {% for book in books %}
+      <article class="card book-card">
+        {% if book.cover_url %}
+          <figure class="preview-card">
+            <img src="{{ book.cover_url }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
+          </figure>
+        {% endif %}
+
+        <h3>{{ book.title or book.original_title }}</h3>
+        <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>
+        <p class="book-meta">{{ book.first_publish_year or 'year unknown' }}</p>
+
+        {% if book.description %}
+          <p>{{ book.description[:220] }}{% if book.description|length > 220 %}...{% endif %}</p>
+        {% endif %}
+      </article>
+    {% else %}
+      <article class="card"><p>no books yet.</p></article>
+    {% endfor %}
+  </section>
+
+  {% if total_pages > 1 %}
+    <section class="card">
+      <div class="inline-actions" aria-label="Books pagination">
+        {% if has_prev %}
+          <a class="btn-link" href="{{ url_for('main.books', page=page-1) }}">previous</a>
+        {% endif %}
+        <span class="small-note">page {{ page }} / {{ total_pages }}</span>
+        {% if has_next %}
+          <a class="btn-link" href="{{ url_for('main.books', page=page+1) }}">next</a>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

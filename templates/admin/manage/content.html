@@ -9,11 +9,40 @@
     <p>All matter rests in MongoDB.</p>
   </section>
 
+  <section class="card form-card">
+    <h2>Homepage notice</h2>
+    <form method="post" action="{{ url_for('admin.manage') }}" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-field form-field-full">
+        <label for="home_notice_banner_text">Notice banner text</label>
+        <p class="small-note">Shown at the top of the home page.</p>
+        <textarea
+          id="home_notice_banner_text"
+          name="home_notice_banner_text"
+          rows="3"
+          maxlength="240"
+          required
+        >{{- home_notice_banner_text -}}</textarea>
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">save notice</button>
+      </div>
+    </form>
+  </section>
+
   <section class="metric-strip" aria-label="Admin counts">
     <article class="card">
       <h3>Books</h3>
       <p class="metric-value">{{ books_count }}</p>
       <a class="btn-link" href="{{ url_for('admin.books') }}">tend</a>
+    </article>
+
+    <article class="card">
+      <h3>Reading</h3>
+      <p class="metric-value">{{ reading_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.reading') }}">tend</a>
     </article>
 
     <article class="card">

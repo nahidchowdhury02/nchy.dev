@@ -13,6 +13,8 @@ from ..services.books_service import BooksService
 from ..services.gallery_service import GalleryService
 from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
+from ..services.reading_service import ReadingService
+from ..services.site_settings_service import SiteSettingsService
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -35,6 +37,14 @@ def _notes_service() -> NotesService:
 
 def _music_service() -> MusicService:
     return MusicService(get_db())
+
+
+def _site_settings_service() -> SiteSettingsService:
+    return SiteSettingsService(get_db())
+
+
+def _reading_service() -> ReadingService:
+    return ReadingService(get_db())
 
 
 def _audit_repo() -> AuditRepository:
@@ -125,17 +135,35 @@ def content():
     return redirect(url_for("admin.manage"))
 
 
-@admin_bp.route("/manage")
+@admin_bp.route("/manage", methods=["GET", "POST"])
 @require_admin
 def manage():
+    site_settings_service = _site_settings_service()
+
+    if request.method == "POST":
+        try:
+            site_settings_service.update_home_notice_banner_text(request.form.get("home_notice_banner_text"))
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="settings.update",
+                entity="site_setting",
+                entity_id="home_notice_banner_text",
+            )
+            flash("Homepage notice banner updated", "success")
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+        return redirect(url_for("admin.manage"))
+
     books_service = _books_service()
     gallery_service = _gallery_service()
     return render_template(
         "admin/manage/content.html",
         books_count=books_service.count_books(),
+        reading_count=_reading_service().count_entries(),
         gallery_count=gallery_service.count_items(),
         music_count=_music_service().count_links(),
         notes_count=_notes_service().count_entries(),
+        home_notice_banner_text=site_settings_service.get_home_notice_banner_text(),
     )
 
 
@@ -147,6 +175,64 @@ def books():
     books_service = _books_service()
     books = books_service.list_admin_books(query=query)
     return render_template("admin/books.html", books=books, query=query)
+
+
+@admin_bp.route("/reading", methods=["GET", "POST"])
+@admin_bp.route("/manage/reading", methods=["GET", "POST"])
+@require_admin
+def reading():
+    books_service = _books_service()
+    reading_service = _reading_service()
+
+    query = (request.form.get("q") or request.args.get("q") or "").strip()
+
+    if request.method == "POST":
+        try:
+            created = reading_service.add_book(request.form.get("book_id", ""))
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="reading.create",
+                entity="reading_item",
+                entity_id=created.get("id", ""),
+                metadata={"book_id": created.get("book_id", "")},
+            )
+            flash("Book added to reading list", "success")
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+
+        if query:
+            return redirect(url_for("admin.reading", q=query))
+        return redirect(url_for("admin.reading"))
+
+    books = books_service.list_admin_books(query=query, limit_raw="200")
+    entries = reading_service.list_admin_entries(limit_raw="200")
+    return render_template("admin/manage/reading.html", books=books, entries=entries, query=query)
+
+
+@admin_bp.route("/reading/<entry_id>/delete", methods=["POST"])
+@require_admin
+def reading_delete(entry_id):
+    query = (request.form.get("q") or "").strip()
+    reading_service = _reading_service()
+
+    try:
+        deleted = reading_service.remove_entry(entry_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="reading.delete",
+                entity="reading_item",
+                entity_id=entry_id,
+            )
+            flash("Book removed from reading list", "success")
+        else:
+            flash("Reading list entry not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+
+    if query:
+        return redirect(url_for("admin.reading", q=query))
+    return redirect(url_for("admin.reading"))
 
 
 @admin_bp.route("/notes", methods=["GET", "POST"])

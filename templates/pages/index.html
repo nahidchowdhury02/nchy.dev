@@ -1,50 +1,49 @@
 {% extends "layouts/public.html" %}
 
-{% block title %}INCXCNI{% endblock %}
+{% block title %}Al library{% endblock %}
 {% block header_title %}Quiet Stack of N{% endblock %}
 
 {% block content %}
   <div class="notice-banner card" role="status" id="notice-banner">
-    <span>this should be something fun for those willing to read</span>
+    <span>{{ notice_banner_text }}</span>
     <button class="notice-dismiss" id="notice-dismiss" type="button">okay</button>
   </div>
-
   <section>
     <h2 class="section-title">other stuff</h2>
     <div class="card-grid link-grid">
       <article class="card">
-        <h3>Github and Research</h3>
-        <p>stuff that i build and studies that i do; mostly boring honestly</p>
-        <a class="btn-link" href="{{ url_for('main.github_research') }}">view</a>
+        <h3>Books</h3>
+        <p class="link-copy">books that my family owns, some with notes and thoughts</p>
+        <a class="btn-link" href="{{ url_for('main.books') }}">view</a>
       </article>
       <article class="card">
         <h3>Gallery</h3>
-        <p>Sketches, paintings, moments and memories that i kept; mostly stuff that survives</p>
+        <p class="link-copy">Sketches, paintings, moments and memories that i kept; mostly stuff that survives</p>
         <a class="btn-link" href="{{ url_for('main.gallery') }}">view</a>
       </article>
       <article class="card">
         <h3>Music List</h3>
-        <p>music that fades into the room, for late night and whenever; voice slaps af</p>
+        <p class="link-copy">music that fades into the room, for late night and whenever; voice slaps af</p>
         <a class="btn-link" href="{{ url_for('main.music') }}">listen</a>
       </article>
       <article class="card">
         <h3>Reading List</h3>
-        <p>stuff im reading, i dont always finish but theres notes in the margins</p>
+        <p class="link-copy">stuff im reading, i dont always finish but theres notes in the margins</p>
         <a class="btn-link" href="{{ url_for('main.reading') }}">open</a>
       </article>
       <article class="card">
         <h3>Fun Stuff</h3>
-        <p>other fun things that i do, this includes coding, cad design and 3d printing prototypes of all sorts</p>
+        <p class="link-copy">other fun things that i do, this includes coding, cad design and 3d printing prototypes of all sorts</p>
         <a class="btn-link" href="{{ url_for('main.fun') }}">try</a>
       </article>
       <article class="card">
         <h3>Notes and Logs</h3>
-        <p>notes and logs, mostly my thoughts on why something became what it is</p>
+        <p class="link-copy">notes and logs, mostly my thoughts on why something became what it is</p>
         <a class="btn-link" href="{{ url_for('main.notes') }}">read</a>
       </article>
       <article class="card">
         <h3>Contact</h3>
-        <p>If you must write i guess but i probably won't respond</p>
+        <p class="link-copy">If you must write i guess but i probably won't respond</p>
         <a class="btn-link" href="{{ url_for('main.contact') }}">email</a>
       </article>
     </div>

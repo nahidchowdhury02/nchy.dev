@@ -5,8 +5,8 @@
 
 {% block content %}
   <section class="card">
-    <h2>Books</h2>
-    <p>{{ total_books }} total books. Page {{ page }} of {{ total_pages }}.</p>
+    <h2>Currently Reading</h2>
+    <p>{{ total_books }} in queue. Page {{ page }} of {{ total_pages }}.</p>
   </section>
 
   <section class="card-grid" aria-label="Reading list">
@@ -34,4 +34,8 @@
       </div>
     </section>
   {% endif %}
+
+  <div class="inline-actions">
+    <a class="btn-link" href="{{ url_for('admin.reading') }}">tend list</a>
+  </div>
 {% endblock %}
