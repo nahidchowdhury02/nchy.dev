@@ -45,7 +45,6 @@ def create_app(config_class=Config):
         return {
             "admin_authenticated": is_admin_authenticated(),
             "admin_username": session.get("admin_username", ""),
-            "special_greeting_name": app.config.get("SPECIAL_GREETING_NAME", ""),
         }
 
     return app
