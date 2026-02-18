@@ -39,6 +39,16 @@
   <div id="gallery-lightbox" class="gallery-lightbox" hidden>
     <img id="gallery-lightbox-image" alt="" />
   </div>
+  <div id="visitor-popup" class="visitor-popup" hidden>
+    <div class="visitor-popup-card">
+      <h2>Quick hello</h2>
+      <p>What is your name?</p>
+      <label for="visitor-name-input" class="visitor-popup-label">Name</label>
+      <input id="visitor-name-input" type="text" autocomplete="name" />
+      <p id="visitor-popup-message" class="visitor-popup-message">Tell me your name.</p>
+      <button id="visitor-popup-close" type="button">Close</button>
+    </div>
+  </div>
 
   <script>
     (function () {
@@ -97,6 +107,65 @@
           lightboxImage.src = "";
           activeContainer = null;
           document.body.classList.remove("lightbox-open");
+        });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const specialName = {{ special_greeting_name|default("", true)|tojson }};
+
+      function closePopup(popup) {
+        popup.hidden = true;
+        document.body.classList.remove("visitor-popup-open");
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const popup = document.getElementById("visitor-popup");
+        const nameInput = document.getElementById("visitor-name-input");
+        const message = document.getElementById("visitor-popup-message");
+        const closeButton = document.getElementById("visitor-popup-close");
+        if (!popup || !nameInput || !message || !closeButton) {
+          return;
+        }
+
+        if (Math.random() >= 0.35) {
+          return;
+        }
+
+        popup.hidden = false;
+        document.body.classList.add("visitor-popup-open");
+
+        function updateMessage() {
+          const typedName = nameInput.value.trim();
+          if (!typedName) {
+            message.textContent = "Tell me your name.";
+            return;
+          }
+
+          if (specialName && typedName.toLowerCase() === specialName.toLowerCase()) {
+            message.textContent = "hellowwww " + typedName + " ;)";
+            return;
+          }
+
+          message.textContent = "hi " + typedName;
+        }
+
+        nameInput.addEventListener("input", updateMessage);
+        closeButton.addEventListener("click", function () {
+          closePopup(popup);
+        });
+
+        popup.addEventListener("click", function (event) {
+          if (event.target === popup) {
+            closePopup(popup);
+          }
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape" && !popup.hidden) {
+            closePopup(popup);
+          }
         });
       });
     })();

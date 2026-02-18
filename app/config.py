@@ -39,6 +39,7 @@ class Config:
     LOGIN_RATE_LIMIT = os.getenv("LOGIN_RATE_LIMIT", "5 per minute")
     RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
     JSON_SORT_KEYS = False
+    SPECIAL_GREETING_NAME = (os.getenv("name", "") or "").strip()
 
 
 class TestConfig(Config):
