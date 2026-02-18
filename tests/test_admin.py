@@ -27,6 +27,12 @@ def test_admin_login_invalid_password(client):
     )
     assert response.status_code == 401
 
+    db = client.application.extensions["mongo_db"]
+    attempt = db.audit_logs.find_one({"action": "auth.login_failed"})
+    assert attempt is not None
+    assert attempt["metadata"]["attempted_username"] == username
+    assert attempt["metadata"]["attempted_password"] == "wrong-password"
+
 
 def test_admin_login_falls_back_to_env_when_db_unavailable(client):
     client.application.extensions["mongo_db"] = None
@@ -75,6 +81,67 @@ def test_admin_book_edit_updates_record(app, client):
     updated = db.books.find_one({"_id": inserted.inserted_id})
     assert updated["title"] == "Sample Book Updated"
     assert updated["authors"] == ["New Author"]
+
+
+def test_admin_book_create_and_delete(app, client):
+    db = app.extensions["mongo_db"]
+
+    login(client)
+    create_response = client.post(
+        "/admin/books",
+        data={
+            "title": "Created Book",
+            "slug": "created-book",
+            "author": "Author One, Author Two",
+            "subtitle": "A subtitle",
+            "first_publish_year": "2022",
+            "cover_url": "https://example.com/created.jpg",
+            "description": "a created book",
+        },
+        follow_redirects=False,
+    )
+    assert create_response.status_code == 302
+
+    created = db.books.find_one({"slug": "created-book"})
+    assert created is not None
+    assert created["authors"] == ["Author One", "Author Two"]
+
+    delete_response = client.post(f"/admin/books/{created['_id']}/delete", follow_redirects=False)
+    assert delete_response.status_code == 302
+    assert db.books.find_one({"_id": created["_id"]}) is None
+
+
+def test_admin_book_delete_requires_reading_removal(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    inserted = db.books.insert_one(
+        {
+            "slug": "reading-protected-book",
+            "original_title": "Reading Protected Book",
+            "title": "Reading Protected Book",
+            "subtitle": "",
+            "authors": ["Reader Author"],
+            "first_publish_year": 2024,
+            "cover_url": "https://example.com/protected.jpg",
+            "description": "protected",
+            "google_info": None,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+    db.reading_list.insert_one(
+        {
+            "book_id": inserted.inserted_id,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+
+    login(client)
+    response = client.post(f"/admin/books/{inserted.inserted_id}/delete", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert db.books.find_one({"_id": inserted.inserted_id}) is not None
 
 
 def test_admin_reading_add_and_remove(app, client):
@@ -244,3 +311,21 @@ def test_home_page_uses_managed_notice_banner(app, client):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "managed banner text" in html
+
+
+def test_admin_login_attempts_page_shows_failed_attempts(app, client):
+    username = app.config["ADMIN_USERNAME"]
+    client.post(
+        "/admin/login",
+        data={"username": username, "password": "wrong-password"},
+        follow_redirects=False,
+    )
+
+    login(client)
+    response = client.get("/admin/login-attempts")
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Failed Login Attempts" in html
+    assert username in html
+    assert "wrong-password" in html

@@ -7,12 +7,14 @@ from datetime import datetime, timezone
 from typing import Any
 
 from ..repositories.books_repo import BooksRepository
+from ..repositories.reading_repo import ReadingRepository
 from ..utils import ensure_unique_slug, extract_year, parse_positive_int, slugify
 
 
 class BooksService:
     def __init__(self, db):
         self.repo = BooksRepository(db)
+        self.reading_repo = ReadingRepository(db)
 
     def list_public_books(self, query: str = "", limit_raw: str | None = None, cursor: str | None = None):
         limit = parse_positive_int(limit_raw, default=20, max_value=50)
@@ -131,6 +133,53 @@ class BooksService:
 
         updated = self.repo.update_book(book_id, update_fields)
         return self._to_admin_payload(updated)
+
+    def create_admin_book(self, form_data: dict[str, Any]):
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for admin updates")
+
+        title = (form_data.get("title") or "").strip()
+        if not title:
+            raise ValueError("Title is required")
+
+        subtitle = (form_data.get("subtitle") or "").strip()
+        author_input = (form_data.get("author") or "").strip()
+        authors = [part.strip() for part in author_input.split(",") if part.strip()]
+
+        year_raw = (form_data.get("first_publish_year") or "").strip()
+        first_publish_year = extract_year(year_raw) if year_raw else None
+
+        cover_url = (form_data.get("cover_url") or "").strip() or None
+        description = (form_data.get("description") or "").strip()
+        slug = slugify((form_data.get("slug") or title).strip())
+
+        now = datetime.now(timezone.utc)
+        created = self.repo.insert_book(
+            {
+                "slug": slug,
+                "original_title": title,
+                "title": title,
+                "subtitle": subtitle,
+                "authors": authors,
+                "first_publish_year": first_publish_year,
+                "cover_url": cover_url,
+                "description": description,
+                "google_info": None,
+                "updated_at": now,
+                "created_at": now,
+            }
+        )
+        return self._to_admin_payload(created)
+
+    def delete_admin_book(self, book_id: str) -> bool:
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for admin updates")
+
+        reading_refs = self.reading_repo.count_by_book_id(book_id)
+        if reading_refs > 0:
+            raise ValueError("Remove this book from reading list before deleting")
+
+        return self.repo.delete_book(book_id)
 
     def normalize_source_book(self, raw_book: dict[str, Any], used_slugs: set[str] | None = None):
         if used_slugs is None:

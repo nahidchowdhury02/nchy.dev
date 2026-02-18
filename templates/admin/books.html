@@ -5,6 +5,52 @@
 
 {% block content %}
   <section class="card form-card">
+    <h2>Add book</h2>
+    <form method="post" action="{{ url_for('admin.books') }}" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-field form-field-full">
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" required />
+      </div>
+
+      <div class="form-field">
+        <label for="slug">Slug (optional)</label>
+        <input id="slug" type="text" name="slug" />
+      </div>
+
+      <div class="form-field">
+        <label for="author">Authors (comma)</label>
+        <input id="author" type="text" name="author" />
+      </div>
+
+      <div class="form-field">
+        <label for="subtitle">Subtitle</label>
+        <input id="subtitle" type="text" name="subtitle" />
+      </div>
+
+      <div class="form-field">
+        <label for="first_publish_year">Year</label>
+        <input id="first_publish_year" type="number" name="first_publish_year" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="cover_url">Cover URL</label>
+        <input id="cover_url" type="url" name="cover_url" />
+      </div>
+
+      <div class="form-field form-field-full">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5"></textarea>
+      </div>
+
+      <div class="form-field form-field-full">
+        <button type="submit">add book</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card form-card">
     <h2>Seek books</h2>
     <form method="get" action="{{ url_for('admin.books') }}" class="inline-form">
       <input type="text" name="q" value="{{ query }}" placeholder="seek title/author" />
@@ -21,6 +67,11 @@
         <p class="book-meta">Year: {{ book.first_publish_year or '-' }}</p>
         <p class="book-meta">Slug: {{ book.slug }}</p>
         <a class="btn-link" href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a>
+        <form method="post" action="{{ url_for('admin.book_delete', book_id=book.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <input type="hidden" name="q" value="{{ query }}" />
+          <button type="submit">delete</button>
+        </form>
       </article>
     {% else %}
       <article class="card"><p>none found.</p></article>
@@ -36,6 +87,7 @@
           <th>Year</th>
           <th>Slug</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -46,10 +98,17 @@
             <td>{{ book.first_publish_year or '-' }}</td>
             <td>{{ book.slug }}</td>
             <td><a href="{{ url_for('admin.book_edit', book_id=book.id) }}">tend</a></td>
+            <td>
+              <form method="post" action="{{ url_for('admin.book_delete', book_id=book.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <input type="hidden" name="q" value="{{ query }}" />
+                <button type="submit">delete</button>
+              </form>
+            </td>
           </tr>
         {% else %}
           <tr>
-            <td colspan="5">none found.</td>
+            <td colspan="6">none found.</td>
           </tr>
         {% endfor %}
       </tbody>

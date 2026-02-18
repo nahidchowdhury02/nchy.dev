@@ -55,6 +55,16 @@ class ReadingRepository:
         result = self.collection.delete_one({"_id": object_id})
         return result.deleted_count > 0
 
+    def count_by_book_id(self, book_id: str) -> int:
+        if self.collection is None:
+            return 0
+
+        object_id = maybe_object_id(book_id)
+        if not object_id:
+            return 0
+
+        return self.collection.count_documents({"book_id": object_id})
+
     def count_entries(self) -> int:
         if self.collection is None:
             return 0

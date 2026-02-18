@@ -1,0 +1,57 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Failed Login Attempts{% endblock %}
+{% block header_title %}Failed Login Attempts{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Recorded attempts</h2>
+    <p class="small-note">Newest first. Stored fields include entered username and passphrase.</p>
+  </section>
+
+  <section class="books-cards" aria-label="Failed login attempts mobile cards">
+    {% for attempt in attempts %}
+      <article class="card book-card">
+        <p class="book-meta">When: {{ attempt.timestamp }}</p>
+        <p class="book-meta">Username: {{ attempt.attempted_username or '-' }}</p>
+        <p class="book-meta">Passphrase: {{ attempt.attempted_password or '-' }}</p>
+        <p class="book-meta">Reason: {{ attempt.reason or '-' }}</p>
+        <p class="book-meta">IP: {{ attempt.remote_addr or '-' }}</p>
+        <p class="book-meta">Agent: {{ attempt.user_agent or '-' }}</p>
+      </article>
+    {% else %}
+      <article class="card"><p>No failed login attempts recorded.</p></article>
+    {% endfor %}
+  </section>
+
+  <section class="books-table card" aria-label="Failed login attempts desktop table">
+    <table>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Username</th>
+          <th>Passphrase</th>
+          <th>Reason</th>
+          <th>IP</th>
+          <th>User Agent</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in attempts %}
+          <tr>
+            <td>{{ attempt.timestamp }}</td>
+            <td>{{ attempt.attempted_username or '-' }}</td>
+            <td>{{ attempt.attempted_password or '-' }}</td>
+            <td>{{ attempt.reason or '-' }}</td>
+            <td>{{ attempt.remote_addr or '-' }}</td>
+            <td>{{ attempt.user_agent or '-' }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6">No failed login attempts recorded.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}

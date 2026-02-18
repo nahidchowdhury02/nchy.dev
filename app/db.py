@@ -71,6 +71,7 @@ def ensure_indexes(db):
     db.admin_users.create_index([("username", ASCENDING)], unique=True)
 
     db.audit_logs.create_index([("timestamp", DESCENDING)])
+    db.audit_logs.create_index([("action", ASCENDING), ("timestamp", DESCENDING)])
     db.notes_logs.create_index([("created_at", DESCENDING)])
     db.notes_logs.create_index([("is_published", ASCENDING)])
     db.site_settings.create_index([("key", ASCENDING)], unique=True)

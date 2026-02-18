@@ -125,6 +125,28 @@ class BooksRepository:
             raise ValueError("Slug already exists") from exc
         return self.get_by_id(book_id)
 
+    def insert_book(self, payload: dict[str, Any]):
+        if self.collection is None:
+            raise RuntimeError("Database unavailable")
+
+        try:
+            result = self.collection.insert_one(payload)
+        except DuplicateKeyError as exc:
+            raise ValueError("Slug already exists") from exc
+
+        return self.get_by_id(str(result.inserted_id))
+
+    def delete_book(self, book_id: str) -> bool:
+        if self.collection is None:
+            raise RuntimeError("Database unavailable")
+
+        object_id = maybe_object_id(book_id)
+        if not object_id:
+            return False
+
+        result = self.collection.delete_one({"_id": object_id})
+        return result.deleted_count > 0
+
     def upsert_by_original_title(self, original_title: str, payload: dict[str, Any]):
         if self.collection is None:
             raise RuntimeError("Database unavailable")

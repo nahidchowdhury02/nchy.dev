@@ -70,16 +70,24 @@ def login():
         return render_template("admin/login.html", next_path=next_path or "")
 
     auth_service = _auth_service()
+    username = (request.form.get("username") or "").strip()
+    password = request.form.get("password") or ""
+    remote_addr = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+    user_agent = request.user_agent.string or ""
 
     now = time.time()
     locked_until = session.get("admin_locked_until", 0)
     if locked_until and now < locked_until:
         wait_seconds = int(locked_until - now)
+        auth_service.log_failed_admin_login(
+            username=username,
+            password=password,
+            reason="locked_out",
+            remote_addr=remote_addr,
+            user_agent=user_agent,
+        )
         flash(f"Too many attempts. Try again in {wait_seconds}s.", "error")
         return render_template("admin/login.html", next_path=next_path or ""), 429
-
-    username = (request.form.get("username") or "").strip()
-    password = request.form.get("password") or ""
 
     user = None
     if auth_service.available():
@@ -107,6 +115,13 @@ def login():
             backoff_seconds = min(300, 2 ** (failed - 2))
             session["admin_locked_until"] = now + backoff_seconds
 
+        auth_service.log_failed_admin_login(
+            username=username,
+            password=password,
+            reason="invalid_credentials",
+            remote_addr=remote_addr,
+            user_agent=user_agent,
+        )
         flash("Invalid username or password", "error")
         return render_template("admin/login.html", next_path=next_path or ""), 401
 
@@ -163,16 +178,32 @@ def manage():
         gallery_count=gallery_service.count_items(),
         music_count=_music_service().count_links(),
         notes_count=_notes_service().count_entries(),
+        failed_logins_count=_auth_service().count_failed_admin_logins(),
         home_notice_banner_text=site_settings_service.get_home_notice_banner_text(),
     )
 
 
-@admin_bp.route("/books")
-@admin_bp.route("/manage/books")
+@admin_bp.route("/books", methods=["GET", "POST"])
+@admin_bp.route("/manage/books", methods=["GET", "POST"])
 @require_admin
 def books():
-    query = request.args.get("q", "").strip()
     books_service = _books_service()
+
+    if request.method == "POST":
+        try:
+            created = books_service.create_admin_book(request.form)
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="books.create",
+                entity="book",
+                entity_id=created.get("id", ""),
+            )
+            flash("Book added", "success")
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+        return redirect(url_for("admin.books"))
+
+    query = request.args.get("q", "").strip()
     books = books_service.list_admin_books(query=query)
     return render_template("admin/books.html", books=books, query=query)
 
@@ -280,6 +311,15 @@ def notes_update(entry_id):
     return redirect(url_for("admin.notes"))
 
 
+@admin_bp.route("/login-attempts")
+@admin_bp.route("/manage/login-attempts")
+@require_admin
+def login_attempts():
+    auth_service = _auth_service()
+    attempts = auth_service.list_failed_admin_logins(limit_raw=request.args.get("limit"))
+    return render_template("admin/login_attempts.html", attempts=attempts)
+
+
 @admin_bp.route("/books/<book_id>/edit", methods=["GET", "POST"])
 @require_admin
 def book_edit(book_id):
@@ -309,6 +349,32 @@ def book_edit(book_id):
         return redirect(url_for("admin.books"))
 
     return render_template("admin/book_edit.html", book=book)
+
+
+@admin_bp.route("/books/<book_id>/delete", methods=["POST"])
+@require_admin
+def book_delete(book_id):
+    query = (request.form.get("q") or "").strip()
+    books_service = _books_service()
+
+    try:
+        deleted = books_service.delete_admin_book(book_id=book_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="books.delete",
+                entity="book",
+                entity_id=book_id,
+            )
+            flash("Book deleted", "success")
+        else:
+            flash("Book not found", "error")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+
+    if query:
+        return redirect(url_for("admin.books", q=query))
+    return redirect(url_for("admin.books"))
 
 
 @admin_bp.route("/gallery", methods=["GET", "POST"])
