@@ -156,3 +156,20 @@ def gallery_media(media_id, filename):
         mimetype=blob.get("content_type") or "application/octet-stream",
         headers={"Cache-Control": "public, max-age=31536000, immutable"},
     )
+
+
+@main_bp.route("/media/notes-audio/<media_id>/<path:filename>")
+def notes_audio_media(media_id, filename):
+    db = get_db()
+    if db is None or not ObjectId.is_valid(media_id):
+        abort(404)
+
+    blob = db.notes_audio_blobs.find_one({"_id": ObjectId(media_id)})
+    if not blob:
+        abort(404)
+
+    return Response(
+        blob.get("data", b""),
+        mimetype=blob.get("content_type") or "application/octet-stream",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )

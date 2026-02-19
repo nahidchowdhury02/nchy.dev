@@ -281,6 +281,63 @@ def test_admin_notes_update_existing_entry(app, client):
     assert updated["source_filename"] == "seed.md"
 
 
+def test_admin_notes_create_with_audio_upload(app, client):
+    db = app.extensions["mongo_db"]
+    login(client)
+
+    response = client.post(
+        "/admin/notes",
+        data={
+            "kind": "note",
+            "title": "Audio note",
+            "is_published": "1",
+            "audio_file": (io.BytesIO(b"RIFFabcdWAVEfmt "), "sample.wav", "audio/wav"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    note = db.notes_logs.find_one({"title": "Audio note"})
+    assert note is not None
+    assert note.get("body", "") == ""
+    assert note["audio_url"].startswith("/media/notes-audio/")
+    assert note["audio_storage_public_id"].startswith("mongo:")
+    assert note["audio_source_filename"] == "sample.wav"
+
+
+def test_admin_notes_delete_removes_note_and_audio_blob(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    blob = db.notes_audio_blobs.insert_one(
+        {
+            "filename": "to-delete.wav",
+            "content_type": "audio/wav",
+            "data": b"RIFF",
+        }
+    )
+    note = db.notes_logs.insert_one(
+        {
+            "kind": "note",
+            "title": "Delete me",
+            "body": "",
+            "is_published": True,
+            "source_filename": "",
+            "audio_url": f"/media/notes-audio/{blob.inserted_id}/to-delete.wav",
+            "audio_storage_public_id": f"mongo:{blob.inserted_id}",
+            "audio_source_filename": "to-delete.wav",
+            "created_at": now,
+        }
+    )
+
+    login(client)
+    response = client.post(f"/admin/notes/{note.inserted_id}/delete", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert db.notes_logs.find_one({"_id": note.inserted_id}) is None
+    assert db.notes_audio_blobs.find_one({"_id": blob.inserted_id}) is None
+
+
 def test_admin_manage_updates_home_notice_banner(app, client):
     db = app.extensions["mongo_db"]
 

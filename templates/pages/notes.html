@@ -13,7 +13,12 @@
     {% for entry in entries %}
       <article class="card">
         <h3>[{{ entry.kind|upper }}] {{ entry.title }}</h3>
-        <p class="entry-body">{{ entry.body }}</p>
+        {% if entry.body %}
+          <p class="entry-body">{{ entry.body }}</p>
+        {% endif %}
+        {% if entry.audio_url %}
+          <audio controls preload="none" src="{{ entry.audio_url }}"></audio>
+        {% endif %}
         <p class="small-note">{{ entry.created_at|pretty_date }}</p>
       </article>
     {% else %}

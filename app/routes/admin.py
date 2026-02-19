@@ -274,7 +274,11 @@ def notes():
 
     if request.method == "POST":
         try:
-            notes_service.create_entry(request.form, request.files.get("upload_file"))
+            notes_service.create_entry(
+                request.form,
+                request.files.get("upload_file"),
+                request.files.get("audio_file"),
+            )
             _audit_repo().log(
                 actor=_admin_actor(),
                 action="notes.create",
@@ -294,7 +298,12 @@ def notes():
 def notes_update(entry_id):
     notes_service = _notes_service()
     try:
-        updated = notes_service.update_entry(entry_id, request.form, request.files.get("upload_file"))
+        updated = notes_service.update_entry(
+            entry_id,
+            request.form,
+            request.files.get("upload_file"),
+            request.files.get("audio_file"),
+        )
         if not updated:
             flash("Notes/log entry not found", "error")
         else:
@@ -305,6 +314,28 @@ def notes_update(entry_id):
                 entity_id=entry_id,
             )
             flash("Notes/log entry updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+
+    return redirect(url_for("admin.notes"))
+
+
+@admin_bp.route("/notes/<entry_id>/delete", methods=["POST"])
+@require_admin
+def notes_delete(entry_id):
+    notes_service = _notes_service()
+    try:
+        deleted = notes_service.remove_entry(entry_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="notes.delete",
+                entity="notes_log",
+                entity_id=entry_id,
+            )
+            flash("Notes/log entry deleted", "success")
+        else:
+            flash("Notes/log entry not found", "error")
     except (ValueError, RuntimeError) as exc:
         flash(str(exc), "error")
 

@@ -11,10 +11,20 @@
 
   <section class="card-grid" aria-label="Reading list">
     {% for book in books %}
-      <article class="card">
+      <article class="card book-card">
+        {% if book.cover_url %}
+          <figure class="preview-card">
+            <img src="{{ book.cover_url }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
+          </figure>
+        {% endif %}
+
         <h3>{{ book.title or book.original_title }}</h3>
         <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>
         <p class="book-meta">{{ book.first_publish_year or 'year unknown' }}</p>
+
+        {% if book.description %}
+          <p>{{ book.description[:220] }}{% if book.description|length > 220 %}...{% endif %}</p>
+        {% endif %}
       </article>
     {% else %}
       <article class="card"><p>no books yet.</p></article>

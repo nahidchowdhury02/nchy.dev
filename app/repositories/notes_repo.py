@@ -50,3 +50,12 @@ class NotesRepository:
         if self.collection is None:
             return 0
         return self.collection.count_documents({})
+
+    def delete_entry(self, entry_id: str) -> bool:
+        if self.collection is None:
+            raise RuntimeError("Database unavailable")
+        object_id = maybe_object_id(entry_id)
+        if not object_id:
+            return False
+        result = self.collection.delete_one({"_id": object_id})
+        return result.deleted_count > 0

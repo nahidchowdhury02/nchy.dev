@@ -32,6 +32,11 @@
         <input id="upload_file" type="file" name="upload_file" accept=".txt,.md,.log,text/plain" />
       </div>
 
+      <div class="form-field form-field-full">
+        <label for="audio_file">Or audio file</label>
+        <input id="audio_file" type="file" name="audio_file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac,.webm" />
+      </div>
+
       <div class="form-field">
         <label><input type="checkbox" name="is_published" value="1" checked /> show on /notes</label>
       </div>
@@ -65,13 +70,25 @@
 
             <div class="form-field form-field-full">
               <label>Body</label>
-              <textarea name="body" rows="8" required>{{ entry.body }}</textarea>
+              <textarea name="body" rows="8">{{ entry.body }}</textarea>
             </div>
 
             <div class="form-field form-field-full">
               <label>Replace from file (.txt/.md/.log)</label>
               <input type="file" name="upload_file" accept=".txt,.md,.log,text/plain" />
             </div>
+
+            <div class="form-field form-field-full">
+              <label>Attach/replace audio file</label>
+              <input type="file" name="audio_file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.aac,.flac,.webm" />
+            </div>
+
+            {% if entry.audio_url %}
+              <div class="form-field form-field-full">
+                <label>Current audio</label>
+                <audio controls preload="none" src="{{ entry.audio_url }}"></audio>
+              </div>
+            {% endif %}
 
             <div class="form-field">
               <label><input type="checkbox" name="is_published" value="1" {% if entry.is_published %}checked{% endif %} /> show on /notes</label>
@@ -81,9 +98,14 @@
               <button type="submit">save</button>
             </div>
           </form>
+          <form method="post" action="{{ url_for('admin.notes_delete', entry_id=entry.id) }}" onsubmit="return confirm('Delete this note?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit">delete</button>
+          </form>
           <p class="small-note">
             shown: {{ entry.is_published }} | {{ entry.created_at|pretty_date }}
             {% if entry.source_filename %}| src: {{ entry.source_filename }}{% endif %}
+            {% if entry.audio_source_filename %}| audio: {{ entry.audio_source_filename }}{% endif %}
           </p>
         </article>
       {% else %}
