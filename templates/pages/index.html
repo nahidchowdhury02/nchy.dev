@@ -63,6 +63,21 @@
 {% block scripts %}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const headerTitle = document.querySelector(".app-header h1");
+      if (headerTitle) {
+        const fullText = headerTitle.textContent || "";
+        headerTitle.textContent = "";
+        let i = 0;
+        const typeTick = function () {
+          headerTitle.textContent = fullText.slice(0, i);
+          i += 1;
+          if (i <= fullText.length) {
+            window.setTimeout(typeTick, 85);
+          }
+        };
+        typeTick();
+      }
+
       const dismiss = document.getElementById("notice-dismiss");
       const banner = document.getElementById("notice-banner");
       if (dismiss && banner) {
