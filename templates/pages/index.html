@@ -4,88 +4,88 @@
 {% block header_title %}Library of N{% endblock %}
 
 {% block content %}
-  <div class="notice-banner card" role="status" id="notice-banner">
-    <span>{{ notice_banner_text }}</span>
-    <button class="notice-dismiss" id="notice-dismiss" type="button">Okay</button>
+<div class="notice-banner card" role="status" id="notice-banner">
+  <span>{{ notice_banner_text }}</span>
+  <button class="notice-dismiss" id="notice-dismiss" type="button">Okay</button>
+</div>
+<section>
+  <h2 class="section-title">Explore</h2>
+  <div class="card-grid link-grid">
+    <article class="card">
+      <h3>GitHub and Research</h3>
+      <p class="link-copy">Projects, experiments, and research notes.</p>
+      <a class="btn-link" href="{{ url_for('main.github_research') }}">View</a>
+    </article>
+    <article class="card">
+      <h3>Gallery</h3>
+      <p class="link-copy">Sketches, paintings, and archived moments.</p>
+      <a class="btn-link" href="{{ url_for('main.gallery') }}">View</a>
+    </article>
+    <article class="card">
+      <h3>LIBRARY</h3>
+      <p class="link-copy">Books with context and notes.</p>
+      <a class="btn-link" href="{{ url_for('main.books') }}">View</a>
+    </article>
+    <article class="card">
+      <h3>Music List</h3>
+      <p class="link-copy">A list of tracks that i love!</p>
+      <a class="btn-link" href="{{ url_for('main.music') }}">Listen</a>
+    </article>
+    <article class="card">
+      <h3>Reading List</h3>
+      <p class="link-copy">Current reading progress and notes.</p>
+      <a class="btn-link" href="{{ url_for('main.reading') }}">Open</a>
+    </article>
+    <article class="card">
+      <h3>Fun Stuff</h3>
+      <p class="link-copy">side projects including coding, CAD, and 3d prototyping.</p>
+      <a class="btn-link" href="{{ url_for('main.fun') }}">Explore</a>
+    </article>
+    <article class="card">
+      <h3>JOURNAL</h3>
+      <p class="link-copy">Notes, logs, and development updates.</p>
+      <a class="btn-link" href="{{ url_for('main.notes') }}">Read</a>
+    </article>
+    <article class="card">
+      <h3>Certification</h3>
+      <p class="link-copy">Achievements and credentials.</p>
+      <a class="btn-link" href="{{ url_for('main.certification') }}">View</a>
+    </article>
+    <article class="card">
+      <h3>Contact</h3>
+      <p class="link-copy">Get in touch for questions or collaboration.</p>
+      <a class="btn-link" href="{{ url_for('main.contact') }}">Email</a>
+    </article>
   </div>
-  <section>
-    <h2 class="section-title">Explore</h2>
-    <div class="card-grid link-grid">
-      <article class="card">
-        <h3>GitHub and Research</h3>
-        <p class="link-copy">Projects, experiments, and research notes.</p>
-        <a class="btn-link" href="{{ url_for('main.github_research') }}">View</a>
-      </article>
-      <article class="card">
-        <h3>Gallery</h3>
-        <p class="link-copy">Sketches, paintings, and archived moments.</p>
-        <a class="btn-link" href="{{ url_for('main.gallery') }}">View</a>
-      </article>
-      <article class="card">
-        <h3>Books</h3>
-        <p class="link-copy">Books with notes, context, and reflections.</p>
-        <a class="btn-link" href="{{ url_for('main.books') }}">View</a>
-      </article>
-      <article class="card">
-        <h3>Music List</h3>
-        <p class="link-copy">A curated list of tracks for late nights</p>
-        <a class="btn-link" href="{{ url_for('main.music') }}">Listen</a>
-      </article>
-      <article class="card">
-        <h3>Reading List</h3>
-        <p class="link-copy">Current reading progress and notes.</p>
-        <a class="btn-link" href="{{ url_for('main.reading') }}">Open</a>
-      </article>
-      <article class="card">
-        <h3>Projects</h3>
-        <p class="link-copy">Creative projects including coding, CAD, and prototyping.</p>
-        <a class="btn-link" href="{{ url_for('main.fun') }}">Explore</a>
-      </article>
-      <article class="card">
-        <h3>Notes and Logs</h3>
-        <p class="link-copy">Notes, logs, and development updates.</p>
-        <a class="btn-link" href="{{ url_for('main.notes') }}">Read</a>
-      </article>
-      <article class="card">
-        <h3>Certification</h3>
-        <p class="link-copy">Achievements and credentials.</p>
-        <a class="btn-link" href="{{ url_for('main.certification') }}">View</a>
-      </article>
-      <article class="card">
-        <h3>Contact</h3>
-        <p class="link-copy">Get in touch for questions or collaboration.</p>
-        <a class="btn-link" href="{{ url_for('main.contact') }}">Email</a>
-      </article>
-    </div>
-  </section>
+</section>
 {% endblock %}
 
 {% block scripts %}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const headerTitle = document.querySelector(".app-header h1");
-      if (headerTitle) {
-        const fullText = headerTitle.textContent || "";
-        headerTitle.textContent = "";
-        let i = 0;
-        const typeTick = function () {
-          headerTitle.textContent = fullText.slice(0, i);
-          i += 1;
-          if (i <= fullText.length) {
-            window.setTimeout(typeTick, 85);
-          }
-        };
-        typeTick();
-      }
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const headerTitle = document.querySelector(".app-header h1");
+    if (headerTitle) {
+      const fullText = headerTitle.textContent || "";
+      headerTitle.textContent = "";
+      let i = 0;
+      const typeTick = function () {
+        headerTitle.textContent = fullText.slice(0, i);
+        i += 1;
+        if (i <= fullText.length) {
+          window.setTimeout(typeTick, 85);
+        }
+      };
+      typeTick();
+    }
 
-      const dismiss = document.getElementById("notice-dismiss");
-      const banner = document.getElementById("notice-banner");
-      if (dismiss && banner) {
-        dismiss.addEventListener("click", function () {
-          banner.remove();
-        });
-      }
+    const dismiss = document.getElementById("notice-dismiss");
+    const banner = document.getElementById("notice-banner");
+    if (dismiss && banner) {
+      dismiss.addEventListener("click", function () {
+        banner.remove();
+      });
+    }
 
-    });
-  </script>
+  });
+</script>
 {% endblock %}

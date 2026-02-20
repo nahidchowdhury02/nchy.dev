@@ -4,12 +4,11 @@
 
 {% block nav %}
   <a href="{{ url_for('main.home') }}">HOME</a>
-  <a href="{{ url_for('main.github_research') }}">RESEARCH</a>
+  <a href="{{ url_for('main.github_research') }}">GITHUB</a>
+  <a href="{{ url_for('main.certification') }}">CERTS</a>
   <a href="{{ url_for('main.books') }}">LIBRARY</a>
+  <a href="{{ url_for('main.reading') }}">READING</a>
   <a href="{{ url_for('main.gallery') }}">GALLERY</a>
   <a href="{{ url_for('main.music') }}">MUSIC</a>
-  <a href="{{ url_for('main.certification') }}">ACHIEVEMENTS</a>
-  <a href="{{ url_for('main.reading') }}">READING</a>
-  <a href="{{ url_for('main.notes') }}">JOURNAL</a>
-  <a href="{{ url_for('admin.login') }}">KEEPER</a>
+  <a href="{{ url_for('main.notes') }}">LOGS</a>
 {% endblock %}
