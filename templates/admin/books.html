@@ -65,11 +65,9 @@
     <section class="card-grid" aria-label="Open Books search results">
       {% for item in external_books %}
         <article class="card book-card">
-          {% if item.cover_url %}
-            <figure class="preview-card">
-              <img src="{{ item.cover_url }}" alt="cover of {{ item.title }}" loading="lazy" />
-            </figure>
-          {% endif %}
+          <figure class="preview-card">
+            <img src="{{ item.cover_url or url_for('static', filename='images/missing book cover.png') }}" alt="cover of {{ item.title }}" loading="lazy" />
+          </figure>
           <h3>{{ item.title }}</h3>
           <p class="book-meta">Author(s): {{ item.author or '-' }}</p>
           <p class="book-meta">Year: {{ item.first_publish_year or '-' }}</p>
@@ -106,6 +104,9 @@
   <section class="books-cards" aria-label="Books mobile cards">
     {% for book in books %}
       <article class="card book-card">
+        <figure class="preview-card">
+          <img src="{{ book.cover_url or url_for('static', filename='images/missing book cover.png') }}" alt="cover of {{ book.title }}" loading="lazy" />
+        </figure>
         <h3>{{ book.title }}</h3>
         <p class="book-meta">Author(s): {{ book.author or '-' }}</p>
         <p class="book-meta">Year: {{ book.first_publish_year or '-' }}</p>

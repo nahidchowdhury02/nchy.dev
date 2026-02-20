@@ -1,21 +1,22 @@
 :root {
-  --bg: #f2f2f2;
-  --surface: #ffffff;
-  --surface-muted: #f0f0f0;
-  --surface-accent: #e6e6e6;
-  --text: #111111;
-  --text-soft: #4d4d4d;
-  --line: #d9d9d9;
+  --bg: #e6e6e6;
+  --surface: #ebebeb;
+  --surface-muted: #e2e2e2;
+  --surface-accent: #f3f3f3;
+  --text: #0f0f0f;
+  --text-soft: #2f2f2f;
+  --line: #d4d4d4;
   --brand: #111111;
-  --brand-ink: #ffffff;
+  --brand-ink: #f2f2f2;
   --danger: #222222;
   --warning: #333333;
   --success: #000000;
   --radius-sm: 0.625rem;
   --radius-md: 0.875rem;
   --radius-lg: 1rem;
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 14px 30px rgba(15, 23, 42, 0.08);
+  --shadow-sm: -4px -4px 8px #ffffff, 4px 4px 8px #c8c8c8;
+  --shadow-md: -8px -8px 18px #ffffff, 8px 8px 18px #c1c1c1;
+  --shadow-inset: inset -3px -3px 6px #ffffff, inset 3px 3px 6px #c6c6c6;
   --site-width: 72rem;
 }
 
@@ -31,9 +32,10 @@ body {
 }
 
 body {
-  background: linear-gradient(180deg, #f7f7f7 0%, #ececec 55%, #f7f7f7 100%);
+  background: linear-gradient(145deg, #efefef 0%, #dddddd 100%);
   color: var(--text);
-  font-family: "Courier New", Courier, "Lucida Console", "Liberation Mono", monospace;
+  font-family: "IBM Plex Mono", "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-weight: 400;
   line-height: 1.5;
   text-wrap: pretty;
   overflow-x: hidden;
@@ -105,11 +107,11 @@ svg {
 }
 
 .app-header {
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: linear-gradient(145deg, #f2f2f2, #dcdcdc);
+  border: 1px solid #e5e5e5;
   border-radius: var(--radius-lg);
   padding: 1rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .app-header h1 {
@@ -120,8 +122,8 @@ svg {
 
 .app-nav {
   margin-top: 0.75rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: linear-gradient(145deg, #f1f1f1, #dddddd);
+  border: 1px solid #e3e3e3;
   border-radius: var(--radius-md);
   padding: 0.625rem;
   box-shadow: var(--shadow-sm);
@@ -139,8 +141,9 @@ svg {
   min-height: 44px;
   padding: 0.55rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--surface-muted);
+  border: 1px solid #e1e1e1;
+  background: linear-gradient(145deg, #f3f3f3, #d8d8d8);
+  box-shadow: var(--shadow-sm);
   color: var(--text);
   text-decoration: none;
   font-size: 0.95rem;
@@ -148,14 +151,15 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .nav-pills a:hover,
 .nav-button:hover {
-  background: var(--surface-accent);
-  border-color: #bdbdbd;
-  transform: translateY(-1px);
+  background: linear-gradient(145deg, #ececec, #dadada);
+  border-color: #d7d7d7;
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
 }
 
 .nav-pills a:focus-visible,
@@ -189,8 +193,8 @@ select:focus-visible {
 
 .flash-item {
   border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: 1px solid #e3e3e3;
+  background: linear-gradient(145deg, #f2f2f2, #dddddd);
   padding: 0.7rem 0.85rem;
   box-shadow: var(--shadow-sm);
 }
@@ -211,16 +215,17 @@ select:focus-visible {
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: linear-gradient(145deg, #f3f3f3, #dddddd);
+  border: 1px solid #e2e2e2;
   border-radius: var(--radius-md);
   padding: 0.95rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .card h2,
 .card h3 {
   line-height: 1.25;
+  font-weight: 700;
 }
 
 .card p + p {
@@ -262,7 +267,7 @@ select:focus-visible {
   background: #ececec;
   color: #1a1a1a;
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -298,8 +303,9 @@ select:focus-visible {
 .preview-card {
   border-radius: var(--radius-sm);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid #dcdcdc;
   background: var(--surface-muted);
+  box-shadow: var(--shadow-sm);
   aspect-ratio: 3 / 4;
 }
 
@@ -312,10 +318,24 @@ select:focus-visible {
 .link-grid .card {
   display: grid;
   gap: 0.6rem;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
 }
 
 .link-grid {
-  align-items: start;
+  align-items: stretch;
+}
+
+.intro-card {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: fit-content;
+  max-width: min(100%, 44rem);
+  height: auto;
+  min-height: 0;
+  justify-self: start;
+  align-self: start;
 }
 
 .link-grid h3 {
@@ -330,15 +350,22 @@ select:focus-visible {
   min-height: 44px;
   padding: 0.58rem 0.95rem;
   border-radius: 0.7rem;
-  border: 1px solid #bdbdbd;
-  background: #ececec;
-  color: #1a1a1a;
+  border: 1px solid #dfdfdf;
+  background: linear-gradient(145deg, #f3f3f3, #dbdbdb);
+  color: var(--text);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.btn-link:hover {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
 }
 
 .inline-actions {
@@ -364,7 +391,7 @@ select:focus-visible {
 }
 
 .form-field label {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.94rem;
 }
 
@@ -382,9 +409,11 @@ select {
   min-height: 44px;
   padding: 0.56rem 0.7rem;
   border-radius: 0.65rem;
-  border: 1px solid #c2c2c2;
-  background: #fff;
+  border: 1px solid #d8d8d8;
+  background: linear-gradient(145deg, #e5e5e5, #f2f2f2);
   color: var(--text);
+  box-shadow: var(--shadow-inset);
+  font-weight: 700;
 }
 
 textarea {
@@ -396,15 +425,18 @@ button {
   min-height: 44px;
   padding: 0.58rem 0.95rem;
   border-radius: 0.7rem;
-  border: 1px solid #111111;
-  background: var(--brand);
-  color: var(--brand-ink);
+  border: 1px solid #dfdfdf;
+  background: linear-gradient(145deg, #f3f3f3, #dadada);
+  color: #111111;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 button:hover {
-  background: #000000;
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
 }
 
 .small-note {
@@ -526,7 +558,7 @@ button:hover {
   position: relative;
   z-index: 2;
   color: #fff;
-  font-weight: 600;
+  font-weight: 700;
   background: rgba(0, 0, 0, 0.58);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
@@ -579,7 +611,7 @@ button:hover {
 .sketch-caption {
   display: block;
   margin-top: 0.55rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
 }
 
@@ -696,7 +728,7 @@ body.lightbox-open {
   margin-top: 0.9rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--surface);
+  background: linear-gradient(145deg, #f1f1f1, #dddddd);
   box-shadow: var(--shadow-sm);
   color: var(--text-soft);
   text-align: center;

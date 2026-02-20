@@ -4,7 +4,7 @@
 {% block header_title %}Reading List{% endblock %}
 
 {% block content %}
-  <section class="card">
+  <section class="card intro-card">
     <h2>Currently Reading</h2>
     <p>{{ total_books }} in queue. Page {{ page }} of {{ total_pages }}.</p>
   </section>
@@ -12,11 +12,9 @@
   <section class="card-grid" aria-label="Reading list">
     {% for book in books %}
       <article class="card book-card">
-        {% if book.cover_url %}
-          <figure class="preview-card">
-            <img src="{{ book.cover_url }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
-          </figure>
-        {% endif %}
+        <figure class="preview-card">
+          <img src="{{ book.cover_url or url_for('static', filename='images/missing book cover.png') }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
+        </figure>
 
         <h3>{{ book.title or book.original_title }}</h3>
         <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>

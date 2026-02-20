@@ -4,7 +4,7 @@
 {% block header_title %}Books{% endblock %}
 
 {% block content %}
-  <section class="card">
+  <section class="card intro-card">
     <h2>Library</h2>
     <form method="get" action="{{ url_for('main.books') }}" class="inline-form">
       <input type="search" name="q" value="{{ query or '' }}" placeholder="Search by title or author" aria-label="Search books" />
@@ -16,11 +16,9 @@
   <section class="card-grid" aria-label="Books library list">
     {% for book in books %}
       <article class="card book-card">
-        {% if book.cover_url %}
-          <figure class="preview-card">
-            <img src="{{ book.cover_url }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
-          </figure>
-        {% endif %}
+        <figure class="preview-card">
+          <img src="{{ book.cover_url or url_for('static', filename='images/missing book cover.png') }}" alt="cover of {{ book.title or book.original_title }}" loading="lazy" />
+        </figure>
 
         <h3>{{ book.title or book.original_title }}</h3>
         <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>
