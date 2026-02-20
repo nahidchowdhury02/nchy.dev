@@ -38,4 +38,10 @@ services:
       - key: RATELIMIT_STORAGE_URI
         scope: RUN_AND_BUILD_TIME
         value: memory://
+      - key: OPEN_BOOK_API_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: OPEN_BOOK_API_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://openlibrary.org
 

@@ -37,7 +37,10 @@
   </div>
 
   <div id="gallery-lightbox" class="gallery-lightbox" hidden>
-    <img id="gallery-lightbox-image" alt="" />
+    <figure class="gallery-lightbox-figure">
+      <img id="gallery-lightbox-image" alt="" />
+      <figcaption id="gallery-lightbox-caption" class="gallery-lightbox-caption"></figcaption>
+    </figure>
   </div>
 
   <script>
@@ -45,7 +48,8 @@
       document.addEventListener("DOMContentLoaded", function () {
         const lightbox = document.getElementById("gallery-lightbox");
         const lightboxImage = document.getElementById("gallery-lightbox-image");
-        if (!lightbox || !lightboxImage) {
+        const lightboxCaption = document.getElementById("gallery-lightbox-caption");
+        if (!lightbox || !lightboxImage || !lightboxCaption) {
           return;
         }
 
@@ -57,6 +61,9 @@
             }
             lightboxImage.src = image.src;
             lightboxImage.alt = image.alt || "gallery image";
+            const caption = (tile.dataset.lightboxCaption || "").trim();
+            lightboxCaption.textContent = caption;
+            lightboxCaption.hidden = !caption;
             lightbox.hidden = false;
             document.body.classList.add("lightbox-open");
           });
@@ -65,6 +72,8 @@
         lightbox.addEventListener("click", function () {
           lightbox.hidden = true;
           lightboxImage.src = "";
+          lightboxCaption.textContent = "";
+          lightboxCaption.hidden = true;
           document.body.classList.remove("lightbox-open");
         });
       });

@@ -27,7 +27,7 @@
         {% endif %}
       </article>
     {% else %}
-      <article class="card"><p>no books yet.</p></article>
+      <article class="card"><p>No books yet.</p></article>
     {% endfor %}
   </section>
 
@@ -35,17 +35,17 @@
     <section class="card">
       <div class="inline-actions" aria-label="Reading pagination">
         {% if has_prev %}
-          <a class="btn-link" href="{{ url_for('main.reading', page=page-1) }}">previous</a>
+          <a class="btn-link" href="{{ url_for('main.reading', page=page-1) }}">Previous</a>
         {% endif %}
-        <span class="small-note">page {{ page }} / {{ total_pages }}</span>
+        <span class="small-note">Page {{ page }} / {{ total_pages }}</span>
         {% if has_next %}
-          <a class="btn-link" href="{{ url_for('main.reading', page=page+1) }}">next</a>
+          <a class="btn-link" href="{{ url_for('main.reading', page=page+1) }}">Next</a>
         {% endif %}
       </div>
     </section>
   {% endif %}
 
   <div class="inline-actions">
-    <a class="btn-link" href="{{ url_for('admin.reading') }}">tend list</a>
+    <a class="btn-link" href="{{ url_for('admin.reading') }}">Manage Reading List</a>
   </div>
 {% endblock %}

@@ -1,14 +1,22 @@
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+from flask import current_app
 
 from ..repositories.books_repo import BooksRepository
 from ..repositories.reading_repo import ReadingRepository
 from ..utils import ensure_unique_slug, extract_year, parse_positive_int, slugify
+
+_ISBN_PATTERN = re.compile(r"^[0-9Xx \-]+$")
 
 
 class BooksService:
@@ -181,6 +189,101 @@ class BooksService:
 
         return self.repo.delete_book(book_id)
 
+    def search_open_books(self, query: str, limit_raw: str | None = None):
+        query_text = (query or "").strip()
+        if not query_text:
+            return []
+
+        limit = parse_positive_int(limit_raw, default=8, max_value=20)
+        api_base = (current_app.config.get("OPEN_BOOK_API_BASE_URL") or "https://openlibrary.org").strip().rstrip("/")
+        api_key = (current_app.config.get("OPEN_BOOK_API_KEY") or "").strip()
+
+        params = {"limit": limit}
+        normalized_isbn = self._normalize_isbn(query_text)
+        if normalized_isbn:
+            params["isbn"] = normalized_isbn
+        else:
+            params["title"] = query_text
+
+        if api_key:
+            params["api_key"] = api_key
+
+        request_headers = {
+            "Accept": "application/json",
+            "User-Agent": "nchydev-source/1.0",
+        }
+        if api_key:
+            request_headers["Authorization"] = f"Bearer {api_key}"
+
+        url = f"{api_base}/search.json?{urlencode(params)}"
+        request = Request(url=url, headers=request_headers)
+        try:
+            with urlopen(request, timeout=8) as response:
+                body = response.read().decode("utf-8")
+        except (HTTPError, OSError, TimeoutError, URLError):
+            return []
+
+        try:
+            data = json.loads(body)
+        except json.JSONDecodeError:
+            return []
+
+        docs = data.get("docs")
+        if not isinstance(docs, list):
+            return []
+
+        results = []
+        for doc in docs[:limit]:
+            if not isinstance(doc, dict):
+                continue
+            normalized = self._to_open_book_result(doc)
+            if normalized:
+                results.append(normalized)
+        return results
+
+    def create_admin_book_from_open_result(self, form_data: dict[str, Any]):
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for admin updates")
+
+        title = (form_data.get("title") or "").strip()
+        if not title:
+            raise ValueError("Title is required")
+
+        subtitle = (form_data.get("subtitle") or "").strip()
+        author_input = (form_data.get("author") or "").strip()
+        authors = [part.strip() for part in author_input.split(",") if part.strip()]
+
+        year_raw = (form_data.get("first_publish_year") or "").strip()
+        first_publish_year = extract_year(year_raw) if year_raw else None
+
+        cover_url = (form_data.get("cover_url") or "").strip() or None
+        description = (form_data.get("description") or "").strip()
+        source_open_key = (form_data.get("source_open_key") or "").strip()
+        source_isbn = self._normalize_isbn((form_data.get("source_isbn") or "").strip())
+
+        base_slug = slugify((form_data.get("slug") or title).strip())
+        slug = self._ensure_repo_unique_slug(base_slug)
+
+        now = datetime.now(timezone.utc)
+        created = self.repo.insert_book(
+            {
+                "slug": slug,
+                "original_title": title,
+                "title": title,
+                "subtitle": subtitle,
+                "authors": authors,
+                "first_publish_year": first_publish_year,
+                "cover_url": cover_url,
+                "description": description,
+                "google_info": None,
+                "open_book_key": source_open_key or None,
+                "isbn": source_isbn or None,
+                "updated_at": now,
+                "created_at": now,
+            }
+        )
+        return self._to_admin_payload(created)
+
     def normalize_source_book(self, raw_book: dict[str, Any], used_slugs: set[str] | None = None):
         if used_slugs is None:
             used_slugs = set()
@@ -317,3 +420,74 @@ class BooksService:
         payload = self._to_public_payload(book)
         payload["author"] = ", ".join(payload.get("authors") or [])
         return payload
+
+    def _to_open_book_result(self, doc: dict[str, Any]):
+        title = (doc.get("title") or "").strip()
+        if not title:
+            return None
+
+        subtitle = (doc.get("subtitle") or "").strip()
+
+        authors_raw = doc.get("author_name")
+        if isinstance(authors_raw, list):
+            authors = [str(author).strip() for author in authors_raw if str(author).strip()]
+        elif isinstance(authors_raw, str):
+            authors = [authors_raw.strip()] if authors_raw.strip() else []
+        else:
+            authors = []
+
+        first_publish_year = extract_year(doc.get("first_publish_year"))
+
+        cover_id = doc.get("cover_i")
+        cover_url = None
+        if isinstance(cover_id, int):
+            cover_url = f"https://covers.openlibrary.org/b/id/{cover_id}-L.jpg"
+
+        isbn_values = doc.get("isbn")
+        source_isbn = ""
+        if isinstance(isbn_values, list):
+            for raw in isbn_values:
+                normalized = self._normalize_isbn(str(raw))
+                if normalized:
+                    source_isbn = normalized
+                    break
+
+        source_open_key = (doc.get("key") or "").strip()
+
+        return {
+            "title": title,
+            "subtitle": subtitle,
+            "author": ", ".join(authors),
+            "authors": authors,
+            "first_publish_year": first_publish_year,
+            "cover_url": cover_url,
+            "description": "",
+            "source_open_key": source_open_key,
+            "source_isbn": source_isbn,
+        }
+
+    def _ensure_repo_unique_slug(self, base_slug: str) -> str:
+        slug = base_slug or "untitled"
+        if not self.repo.available():
+            return slug
+
+        candidate = slug
+        suffix = 2
+        while self.repo.get_by_slug(candidate):
+            candidate = f"{slug}-{suffix}"
+            suffix += 1
+        return candidate
+
+    def _normalize_isbn(self, value: str) -> str:
+        candidate = (value or "").strip()
+        if not candidate or not _ISBN_PATTERN.match(candidate):
+            return ""
+
+        compact = re.sub(r"[^0-9Xx]", "", candidate).upper()
+        if len(compact) == 10:
+            if compact[:-1].isdigit() and (compact[-1].isdigit() or compact[-1] == "X"):
+                return compact
+            return ""
+        if len(compact) == 13 and compact.isdigit():
+            return compact
+        return ""

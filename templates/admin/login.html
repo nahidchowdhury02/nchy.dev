@@ -1,31 +1,31 @@
 {% extends "layouts/admin.html" %}
 
-{% block title %}admin{% endblock %}
-{% block header_title %}Admin{% endblock %}
+{% block title %}Admin Login{% endblock %}
+{% block header_title %}Admin Login{% endblock %}
 
 {% block nav %}
-  <a href="{{ url_for('main.home') }}">home</a>
+  <a href="{{ url_for('main.home') }}">Home</a>
 {% endblock %}
 
 {% block content %}
   <section class="card form-card">
-    <h2>admin you know</h2>
+    <h2>Administrator Login</h2>
     <form method="post" action="{{ url_for('admin.login') }}" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <input type="hidden" name="next" value="{{ next_path }}" />
 
       <div class="form-field">
-        <label for="username">name</label>
+        <label for="username">Username</label>
         <input id="username" type="text" name="username" autocomplete="username" required />
       </div>
 
       <div class="form-field">
-        <label for="password">password</label>
+        <label for="password">Password</label>
         <input id="password" type="password" name="password" autocomplete="current-password" required />
       </div>
 
       <div class="form-field form-field-full">
-        <button type="submit">enter</button>
+        <button type="submit">Log In</button>
       </div>
     </form>
   </section>

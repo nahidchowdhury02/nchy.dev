@@ -3,18 +3,19 @@
 {% block body_class %}admin-page{% endblock %}
 
 {% block nav %}
-  <a href="{{ url_for('admin.manage') }}">hall</a>
-  <a href="{{ url_for('admin.books') }}">books</a>
-  <a href="{{ url_for('admin.reading') }}">reading</a>
-  <a href="{{ url_for('admin.gallery') }}">gallery</a>
-  <a href="{{ url_for('admin.music') }}">music</a>
-  <a href="{{ url_for('admin.notes') }}">notes</a>
-  <a href="{{ url_for('admin.login_attempts') }}">logins</a>
-  <a href="{{ url_for('main.home') }}">home</a>
+  <a href="{{ url_for('admin.manage') }}">Dashboard</a>
+  <a href="{{ url_for('admin.books') }}">Books</a>
+  <a href="{{ url_for('admin.reading') }}">Reading</a>
+  <a href="{{ url_for('admin.gallery') }}">Gallery</a>
+  <a href="{{ url_for('admin.certifications') }}">Certifications</a>
+  <a href="{{ url_for('admin.music') }}">Music</a>
+  <a href="{{ url_for('admin.notes') }}">Notes</a>
+  <a href="{{ url_for('admin.login_attempts') }}">Login Attempts</a>
+  <a href="{{ url_for('main.home') }}">Home</a>
   {% if admin_authenticated %}
     <form method="post" action="{{ url_for('admin.logout') }}" class="nav-inline-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-      <button type="submit" class="nav-button">leave</button>
+      <button type="submit" class="nav-button">Log Out</button>
     </form>
   {% endif %}
 {% endblock %}

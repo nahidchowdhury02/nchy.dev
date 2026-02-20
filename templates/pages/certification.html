@@ -1,0 +1,34 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Certification{% endblock %}
+{% block header_title %}Certification{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <h2>Certification</h2>
+    <p>Achievements and credentials.</p>
+    <p class="small-note">Badges are managed from admin and loaded from MongoDB.</p>
+  </section>
+
+  <section class="card">
+    <h3>Badges</h3>
+    <div class="card-grid" aria-label="Certification badges">
+      {% for badge in badges %}
+        <article class="card cert-badge-card">
+          <div
+            data-iframe-width="{{ badge.iframe_width }}"
+            data-iframe-height="{{ badge.iframe_height }}"
+            data-share-badge-id="{{ badge.badge_uuid }}"
+            data-share-badge-host="{{ badge.badge_host }}"
+          ></div>
+        </article>
+      {% else %}
+        <article class="card"><p>No certifications added yet.</p></article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" async src="//cdn.credly.com/assets/utilities/embed.js"></script>
+{% endblock %}

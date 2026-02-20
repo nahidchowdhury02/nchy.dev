@@ -1,22 +1,28 @@
 {% extends "layouts/admin.html" %}
 
-{% block title %}Music Management{% endblock %}
-{% block header_title %}Music Management{% endblock %}
+{% block title %}Certification Management{% endblock %}
+{% block header_title %}Certification Management{% endblock %}
 
 {% block content %}
   <section class="card form-card">
-    <h2>Add YouTube Link</h2>
-    <form method="post" action="{{ url_for('admin.music') }}" class="form-grid">
+    <h2>Add Credly Badge</h2>
+    <form method="post" action="{{ url_for('admin.certifications') }}" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
       <div class="form-field">
         <label for="title">Title</label>
-        <input id="title" type="text" name="title" required />
+        <input id="title" type="text" name="title" placeholder="Optional label" />
       </div>
 
       <div class="form-field">
-        <label for="youtube_url">YouTube URL</label>
-        <input id="youtube_url" type="url" name="youtube_url" required />
+        <label for="credly_url">Credly Public URL</label>
+        <input
+          id="credly_url"
+          type="url"
+          name="credly_url"
+          placeholder="https://www.credly.com/badges/.../public_url"
+          required
+        />
       </div>
 
       <div class="form-field">
@@ -35,30 +41,30 @@
   </section>
 
   <section>
-    <h2 class="section-title">Saved Links</h2>
-    <div class="card-grid" aria-label="Saved music links">
-      {% for link in links %}
+    <h2 class="section-title">Saved Badges</h2>
+    <div class="card-grid" aria-label="Saved certification badges">
+      {% for badge in badges %}
         <article class="card admin-item">
-          <form method="post" action="{{ url_for('admin.music_update', link_id=link.id) }}" class="form-grid">
+          <form method="post" action="{{ url_for('admin.certifications_update', badge_id=badge.id) }}" class="form-grid">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
             <div class="form-field">
               <label>Title</label>
-              <input type="text" name="title" value="{{ link.title }}" required />
+              <input type="text" name="title" value="{{ badge.title }}" />
             </div>
 
             <div class="form-field">
-              <label>YouTube URL</label>
-              <input type="url" name="youtube_url" value="{{ link.youtube_url }}" required />
+              <label>Credly Public URL</label>
+              <input type="url" name="credly_url" value="{{ badge.credly_url }}" required />
             </div>
 
             <div class="form-field">
               <label>Sort</label>
-              <input type="number" name="sort_order" value="{{ link.sort_order }}" />
+              <input type="number" name="sort_order" value="{{ badge.sort_order }}" />
             </div>
 
             <div class="form-field">
-              <label><input type="checkbox" name="is_published" value="1" {% if link.is_published %}checked{% endif %} /> Published</label>
+              <label><input type="checkbox" name="is_published" value="1" {% if badge.is_published %}checked{% endif %} /> Published</label>
             </div>
 
             <div class="form-field form-field-full">
@@ -67,15 +73,15 @@
           </form>
 
           <div class="item-actions">
-            <a class="btn-link" href="{{ link.embed_url }}" target="_blank" rel="noreferrer noopener">Preview</a>
-            <form method="post" action="{{ url_for('admin.music_delete', link_id=link.id) }}" onsubmit="return confirm('Remove this link?');">
+            <a class="btn-link" href="{{ badge.credly_url }}" target="_blank" rel="noreferrer noopener">Open</a>
+            <form method="post" action="{{ url_for('admin.certifications_delete', badge_id=badge.id) }}" onsubmit="return confirm('Remove this badge?');">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit">Remove</button>
             </form>
           </div>
         </article>
       {% else %}
-        <article class="card"><p>No links yet.</p></article>
+        <article class="card"><p>No badges yet.</p></article>
       {% endfor %}
     </div>
   </section>

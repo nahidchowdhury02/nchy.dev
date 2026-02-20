@@ -1,16 +1,16 @@
 {% extends "layouts/admin.html" %}
 
-{% block title %}Manage Reading{% endblock %}
-{% block header_title %}Manage Reading List{% endblock %}
+{% block title %}Reading Management{% endblock %}
+{% block header_title %}Reading Management{% endblock %}
 
 {% block content %}
   <section class="card form-card">
-    <h2>Add from library</h2>
+    <h2>Add from Library</h2>
     <form method="get" action="{{ url_for('admin.reading') }}" class="inline-form">
-      <input type="text" name="q" value="{{ query }}" placeholder="seek title/author" />
-      <button type="submit">seek</button>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search by title or author" />
+      <button type="submit">Search</button>
     </form>
-    <p class="small-note">library matches: {{ books|length }}</p>
+    <p class="small-note">Library matches: {{ books|length }}</p>
 
     <form method="post" action="{{ url_for('admin.reading') }}" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -19,43 +19,43 @@
       <div class="form-field form-field-full">
         <label for="book_id">Book</label>
         <select id="book_id" name="book_id" required>
-          <option value="">choose from library</option>
+          <option value="">Choose from library</option>
           {% for book in books %}
-            <option value="{{ book.id }}">{{ book.title }}{% if book.author %} — {{ book.author }}{% endif %}</option>
+            <option value="{{ book.id }}">{{ book.title }}{% if book.author %} - {{ book.author }}{% endif %}</option>
           {% endfor %}
         </select>
       </div>
 
       <div class="form-field form-field-full">
-        <button type="submit">add to reading</button>
+        <button type="submit">Add to Reading List</button>
       </div>
     </form>
   </section>
 
   <section>
-    <h2 class="section-title">Current reading</h2>
+    <h2 class="section-title">Current Reading</h2>
     <div class="card-grid" aria-label="Current reading list">
       {% for item in entries %}
         <article class="card admin-item">
           {% if item.book %}
             <h3>{{ item.book.title }}</h3>
-            <p class="book-meta">{{ item.book.author or 'unknown author' }}</p>
-            <p class="book-meta">{{ item.book.first_publish_year or 'year unknown' }}</p>
+            <p class="book-meta">{{ item.book.author or 'Unknown author' }}</p>
+            <p class="book-meta">{{ item.book.first_publish_year or 'Year unknown' }}</p>
           {% else %}
             <h3>Missing book</h3>
-            <p class="small-note">book no longer exists in library</p>
+            <p class="small-note">Book no longer exists in library.</p>
           {% endif %}
 
-          <p class="small-note">added {{ item.created_at|pretty_date }}</p>
+          <p class="small-note">Added {{ item.created_at|pretty_date }}</p>
 
           <form method="post" action="{{ url_for('admin.reading_delete', entry_id=item.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <input type="hidden" name="q" value="{{ query }}" />
-            <button type="submit">done reading</button>
+            <button type="submit">Mark as Completed</button>
           </form>
         </article>
       {% else %}
-        <article class="card"><p>nothing in reading list yet.</p></article>
+        <article class="card"><p>No books in the reading list yet.</p></article>
       {% endfor %}
     </div>
   </section>

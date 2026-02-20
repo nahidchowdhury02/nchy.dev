@@ -39,6 +39,8 @@ class Config:
     LOGIN_RATE_LIMIT = os.getenv("LOGIN_RATE_LIMIT", "5 per minute")
     RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
     JSON_SORT_KEYS = False
+    OPEN_BOOK_API_BASE_URL = os.getenv("OPEN_BOOK_API_BASE_URL", "https://openlibrary.org").strip()
+    OPEN_BOOK_API_KEY = os.getenv("OPEN_BOOK_API_KEY", "").strip()
 
 
 class TestConfig(Config):

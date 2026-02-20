@@ -1,6 +1,8 @@
 import io
 from datetime import datetime, timezone
 
+from app.services.books_service import BooksService
+
 
 def login(client):
     username = client.application.config["ADMIN_USERNAME"]
@@ -111,6 +113,62 @@ def test_admin_book_create_and_delete(app, client):
     assert db.books.find_one({"_id": created["_id"]}) is None
 
 
+def test_admin_books_external_search_and_import(app, client, monkeypatch):
+    db = app.extensions["mongo_db"]
+
+    def fake_search(self, query, limit_raw=None):
+        assert query == "9780140328721"
+        return [
+            {
+                "title": "Matilda",
+                "subtitle": "",
+                "author": "Roald Dahl",
+                "authors": ["Roald Dahl"],
+                "first_publish_year": 1988,
+                "cover_url": "https://covers.openlibrary.org/b/id/123-L.jpg",
+                "description": "",
+                "source_open_key": "/works/OL45804W",
+                "source_isbn": "9780140328721",
+            }
+        ]
+
+    monkeypatch.setattr(BooksService, "search_open_books", fake_search)
+
+    login(client)
+
+    search_response = client.get("/admin/books?external_q=9780140328721")
+    assert search_response.status_code == 200
+    assert "Matilda" in search_response.get_data(as_text=True)
+
+    import_response = client.post(
+        "/admin/books/import",
+        data={
+            "external_q": "9780140328721",
+            "title": "Matilda",
+            "subtitle": "",
+            "author": "Roald Dahl",
+            "first_publish_year": "1988",
+            "cover_url": "https://covers.openlibrary.org/b/id/123-L.jpg",
+            "description": "",
+            "source_open_key": "/works/OL45804W",
+            "source_isbn": "9780140328721",
+        },
+        follow_redirects=False,
+    )
+    assert import_response.status_code == 302
+    assert import_response.headers["Location"].endswith("?external_q=9780140328721")
+
+    imported = db.books.find_one({"slug": "matilda"})
+    assert imported is not None
+    assert imported["title"] == "Matilda"
+    assert imported["authors"] == ["Roald Dahl"]
+    assert imported["open_book_key"] == "/works/OL45804W"
+    assert imported["isbn"] == "9780140328721"
+
+    audit = db.audit_logs.find_one({"action": "books.import", "entity_id": str(imported["_id"])})
+    assert audit is not None
+
+
 def test_admin_book_delete_requires_reading_removal(app, client):
     db = app.extensions["mongo_db"]
     now = datetime.now(timezone.utc)
@@ -204,6 +262,49 @@ def test_admin_gallery_create_and_delete(app, client):
     delete_response = client.post(f"/admin/gallery/{item['_id']}/delete", follow_redirects=False)
     assert delete_response.status_code == 302
     assert db.gallery_items.find_one({"_id": item["_id"]}) is None
+
+
+def test_admin_gallery_archive_and_unarchive(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    inserted = db.gallery_items.insert_one(
+        {
+            "category": "sketches",
+            "title": "Archive me",
+            "caption": "caption",
+            "image_url": "https://example.com/archive-me.jpg",
+            "storage_public_id": "img/archive-me",
+            "sort_order": 0,
+            "is_published": True,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+
+    login(client)
+    archive_response = client.post(
+        f"/admin/gallery/{inserted.inserted_id}/archive",
+        data={"category": "sketches"},
+        follow_redirects=False,
+    )
+    assert archive_response.status_code == 302
+
+    archived = db.gallery_items.find_one({"_id": inserted.inserted_id})
+    assert archived is not None
+    assert archived["is_published"] is False
+    assert db.audit_logs.find_one({"action": "gallery.archive", "entity_id": str(inserted.inserted_id)}) is not None
+
+    unarchive_response = client.post(
+        f"/admin/gallery/{inserted.inserted_id}/unarchive",
+        data={"category": "sketches"},
+        follow_redirects=False,
+    )
+    assert unarchive_response.status_code == 302
+
+    unarchived = db.gallery_items.find_one({"_id": inserted.inserted_id})
+    assert unarchived is not None
+    assert unarchived["is_published"] is True
+    assert db.audit_logs.find_one({"action": "gallery.unarchive", "entity_id": str(inserted.inserted_id)}) is not None
 
 
 def test_admin_gallery_upload_uses_mongo_storage(app, client):

@@ -1,11 +1,11 @@
 {% extends "layouts/admin.html" %}
 
-{% block title %}Tend Book{% endblock %}
-{% block header_title %}Tend Book{% endblock %}
+{% block title %}Edit Book{% endblock %}
+{% block header_title %}Edit Book{% endblock %}
 
 {% block content %}
   <section class="card form-card">
-    <h2>Edit details</h2>
+    <h2>Edit Book Details</h2>
     <form method="post" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
@@ -45,7 +45,7 @@
       </div>
 
       <div class="form-field form-field-full">
-        <button type="submit">save</button>
+        <button type="submit">Save</button>
       </div>
     </form>
   </section>

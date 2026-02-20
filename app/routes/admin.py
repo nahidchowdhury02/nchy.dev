@@ -10,6 +10,7 @@ from ..extensions import limiter
 from ..repositories.audit_repo import AuditRepository
 from ..services.auth_service import AuthService
 from ..services.books_service import BooksService
+from ..services.certification_service import CertificationService
 from ..services.gallery_service import GalleryService
 from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
@@ -29,6 +30,10 @@ def _books_service() -> BooksService:
 
 def _gallery_service() -> GalleryService:
     return GalleryService(get_db())
+
+
+def _certification_service() -> CertificationService:
+    return CertificationService(get_db())
 
 
 def _notes_service() -> NotesService:
@@ -59,6 +64,13 @@ def _safe_next(next_path: str | None):
 
 def _admin_actor() -> str:
     return session.get("admin_username", "system")
+
+
+def _gallery_redirect():
+    category = (request.form.get("category") or request.args.get("category") or "").strip().lower()
+    if category in {"all", "sketches", "moments"}:
+        return redirect(url_for("admin.gallery", category=category))
+    return redirect(url_for("admin.gallery"))
 
 
 @admin_bp.route("/login", methods=["GET", "POST"])
@@ -175,12 +187,81 @@ def manage():
         "admin/manage/content.html",
         books_count=books_service.count_books(),
         reading_count=_reading_service().count_entries(),
+        certification_count=_certification_service().count_badges(),
         gallery_count=gallery_service.count_items(),
         music_count=_music_service().count_links(),
         notes_count=_notes_service().count_entries(),
         failed_logins_count=_auth_service().count_failed_admin_logins(),
         home_notice_banner_text=site_settings_service.get_home_notice_banner_text(),
     )
+
+
+@admin_bp.route("/certifications", methods=["GET", "POST"])
+@admin_bp.route("/manage/certifications", methods=["GET", "POST"])
+@require_admin
+def certifications():
+    certification_service = _certification_service()
+
+    if request.method == "POST":
+        try:
+            created = certification_service.create_badge(request.form)
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="certifications.create",
+                entity="certification",
+                entity_id=created.get("id", ""),
+                metadata={"badge_uuid": created.get("badge_uuid", "")},
+            )
+            flash("Certification badge created", "success")
+            return redirect(url_for("admin.certifications"))
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+
+    badges = certification_service.list_admin_badges()
+    return render_template("admin/certifications.html", badges=badges)
+
+
+@admin_bp.route("/certifications/<badge_id>", methods=["POST"])
+@require_admin
+def certifications_update(badge_id):
+    certification_service = _certification_service()
+    try:
+        updated = certification_service.update_badge(badge_id, request.form)
+        if not updated:
+            flash("Certification badge not found", "error")
+        else:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="certifications.update",
+                entity="certification",
+                entity_id=badge_id,
+                metadata={"badge_uuid": updated.get("badge_uuid", "")},
+            )
+            flash("Certification badge updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.certifications"))
+
+
+@admin_bp.route("/certifications/<badge_id>/delete", methods=["POST"])
+@require_admin
+def certifications_delete(badge_id):
+    certification_service = _certification_service()
+    try:
+        deleted = certification_service.delete_badge(badge_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="certifications.delete",
+                entity="certification",
+                entity_id=badge_id,
+            )
+            flash("Certification badge deleted", "success")
+        else:
+            flash("Certification badge not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.certifications"))
 
 
 @admin_bp.route("/books", methods=["GET", "POST"])
@@ -204,8 +285,48 @@ def books():
         return redirect(url_for("admin.books"))
 
     query = request.args.get("q", "").strip()
+    external_query = request.args.get("external_q", "").strip()
     books = books_service.list_admin_books(query=query)
-    return render_template("admin/books.html", books=books, query=query)
+    external_books = []
+    if external_query:
+        external_books = books_service.search_open_books(
+            query=external_query,
+            limit_raw=request.args.get("external_limit"),
+        )
+    return render_template(
+        "admin/books.html",
+        books=books,
+        query=query,
+        external_query=external_query,
+        external_books=external_books,
+    )
+
+
+@admin_bp.route("/books/import", methods=["POST"])
+@require_admin
+def books_import():
+    books_service = _books_service()
+    external_query = (request.form.get("external_q") or "").strip()
+
+    try:
+        created = books_service.create_admin_book_from_open_result(request.form)
+        _audit_repo().log(
+            actor=_admin_actor(),
+            action="books.import",
+            entity="book",
+            entity_id=created.get("id", ""),
+            metadata={
+                "source_open_key": (request.form.get("source_open_key") or "").strip(),
+                "source_isbn": (request.form.get("source_isbn") or "").strip(),
+            },
+        )
+        flash("Book imported", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+
+    if external_query:
+        return redirect(url_for("admin.books", external_q=external_query))
+    return redirect(url_for("admin.books"))
 
 
 @admin_bp.route("/reading", methods=["GET", "POST"])
@@ -423,7 +544,7 @@ def gallery():
                 entity="gallery_item",
             )
             flash("Gallery item created", "success")
-            return redirect(url_for("admin.gallery"))
+            return _gallery_redirect()
         except (ValueError, RuntimeError) as exc:
             flash(str(exc), "error")
 
@@ -455,7 +576,53 @@ def gallery_update(item_id):
     except (ValueError, RuntimeError) as exc:
         flash(str(exc), "error")
 
-    return redirect(url_for("admin.gallery"))
+    return _gallery_redirect()
+
+
+@admin_bp.route("/gallery/<item_id>/archive", methods=["POST"])
+@require_admin
+def gallery_archive(item_id):
+    gallery_service = _gallery_service()
+
+    try:
+        updated = gallery_service.set_item_archived(item_id=item_id, archived=True)
+        if updated:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="gallery.archive",
+                entity="gallery_item",
+                entity_id=item_id,
+            )
+            flash("Gallery item archived", "success")
+        else:
+            flash("Gallery item not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+
+    return _gallery_redirect()
+
+
+@admin_bp.route("/gallery/<item_id>/unarchive", methods=["POST"])
+@require_admin
+def gallery_unarchive(item_id):
+    gallery_service = _gallery_service()
+
+    try:
+        updated = gallery_service.set_item_archived(item_id=item_id, archived=False)
+        if updated:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="gallery.unarchive",
+                entity="gallery_item",
+                entity_id=item_id,
+            )
+            flash("Gallery item unarchived", "success")
+        else:
+            flash("Gallery item not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+
+    return _gallery_redirect()
 
 
 @admin_bp.route("/gallery/<item_id>/delete", methods=["POST"])
@@ -478,7 +645,7 @@ def gallery_delete(item_id):
     except RuntimeError as exc:
         flash(str(exc), "error")
 
-    return redirect(url_for("admin.gallery"))
+    return _gallery_redirect()
 
 
 @admin_bp.route("/gallery/upload", methods=["POST"])

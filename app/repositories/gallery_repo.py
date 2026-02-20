@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from ..utils import maybe_object_id, serialize_doc
@@ -77,6 +78,25 @@ class GalleryRepository:
             return False
         result = self.collection.delete_one({"_id": object_id})
         return bool(result.deleted_count)
+
+    def set_published(self, item_id: str, is_published: bool):
+        if self.collection is None:
+            raise RuntimeError("Database unavailable")
+
+        object_id = maybe_object_id(item_id)
+        if not object_id:
+            return None
+
+        self.collection.update_one(
+            {"_id": object_id},
+            {
+                "$set": {
+                    "is_published": bool(is_published),
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            },
+        )
+        return self.get_by_id(item_id)
 
     def count_items(self) -> int:
         if self.collection is None:

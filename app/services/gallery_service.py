@@ -70,6 +70,13 @@ class GalleryService:
             delete_image(self._public_id(current_item))
         return deleted
 
+    def set_item_archived(self, item_id: str, archived: bool):
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for gallery management")
+
+        updated = self.repo.set_published(item_id=item_id, is_published=not archived)
+        return self._serialize_item(updated)
+
     def upload_item_image(self, file_storage):
         if not file_storage:
             raise ValueError("Missing image file")

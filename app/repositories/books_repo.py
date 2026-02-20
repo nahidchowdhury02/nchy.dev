@@ -95,6 +95,12 @@ class BooksRepository:
         doc = self.collection.find_one({"_id": object_id})
         return serialize_doc(doc)
 
+    def get_by_slug(self, slug: str):
+        if self.collection is None:
+            return None
+        doc = self.collection.find_one({"slug": slug})
+        return serialize_doc(doc)
+
     def list_by_ids(self, book_ids: list[str]):
         if self.collection is None:
             return []

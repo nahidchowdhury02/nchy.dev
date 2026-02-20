@@ -1,8 +1,9 @@
 from bson import ObjectId
-from flask import Blueprint, Response, abort, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, Response, abort, current_app, jsonify, redirect, render_template, request, send_from_directory, url_for
 
 from ..db import get_db
 from ..services.books_service import BooksService
+from ..services.certification_service import CertificationService
 from ..services.gallery_service import GalleryService
 from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
@@ -18,6 +19,10 @@ def _books_service() -> BooksService:
 
 def _gallery_service() -> GalleryService:
     return GalleryService(get_db())
+
+
+def _certification_service() -> CertificationService:
+    return CertificationService(get_db())
 
 
 def _notes_service() -> NotesService:
@@ -56,16 +61,28 @@ def github_research():
 
 @main_bp.route("/books")
 def books():
-    page_data = _books_service().list_public_books_page(page_raw=request.args.get("page"), per_page_raw="24")
+    query = (request.args.get("q") or "").strip()
+    page_data = _books_service().list_public_books_page(
+        query=query,
+        page_raw=request.args.get("page"),
+        per_page_raw="24",
+    )
     return render_template(
         "pages/books.html",
         books=page_data["items"],
+        query=query,
         page=page_data["page"],
         total_pages=page_data["total_pages"],
         total_books=page_data["total"],
         has_prev=page_data["has_prev"],
         has_next=page_data["has_next"],
     )
+
+
+@main_bp.route("/certification")
+def certification():
+    badges = _certification_service().list_public_badges()
+    return render_template("pages/certification.html", badges=badges)
 
 
 @main_bp.route("/music")
@@ -139,6 +156,11 @@ def healthz():
         return jsonify({"status": "degraded", "database": "down", "error": str(exc)}), 503
 
     return jsonify({"status": "ok", "database": "up"})
+
+
+@main_bp.route("/robots.txt")
+def robots_txt():
+    return send_from_directory(current_app.static_folder, "robots.txt", mimetype="text/plain")
 
 
 @main_bp.route("/media/gallery/<media_id>/<path:filename>")

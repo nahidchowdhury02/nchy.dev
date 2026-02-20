@@ -1,12 +1,12 @@
 {% extends "layouts/admin.html" %}
 
-{% block title %}Manage{% endblock %}
-{% block header_title %}Manage{% endblock %}
+{% block title %}Dashboard{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
 
 {% block content %}
   <section class="card">
-    <h2>Control Hall</h2>
-    <p>All matter rests in MongoDB.</p>
+    <h2>Control Panel</h2>
+    <p>All data is stored in MongoDB.</p>
   </section>
 
   <section class="card form-card">
@@ -27,7 +27,7 @@
       </div>
 
       <div class="form-field form-field-full">
-        <button type="submit">save notice</button>
+        <button type="submit">Save Notice</button>
       </div>
     </form>
   </section>
@@ -36,37 +36,43 @@
     <article class="card">
       <h3>Books</h3>
       <p class="metric-value">{{ books_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.books') }}">tend</a>
+      <a class="btn-link" href="{{ url_for('admin.books') }}">Manage</a>
     </article>
 
     <article class="card">
       <h3>Reading</h3>
       <p class="metric-value">{{ reading_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.reading') }}">tend</a>
+      <a class="btn-link" href="{{ url_for('admin.reading') }}">Manage</a>
     </article>
 
     <article class="card">
       <h3>Gallery</h3>
       <p class="metric-value">{{ gallery_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.gallery') }}">tend</a>
+      <a class="btn-link" href="{{ url_for('admin.gallery') }}">Manage</a>
+    </article>
+
+    <article class="card">
+      <h3>Certifications</h3>
+      <p class="metric-value">{{ certification_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.certifications') }}">Manage</a>
     </article>
 
     <article class="card">
       <h3>Music</h3>
       <p class="metric-value">{{ music_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.music') }}">tend</a>
+      <a class="btn-link" href="{{ url_for('admin.music') }}">Manage</a>
     </article>
 
     <article class="card">
       <h3>Notes</h3>
       <p class="metric-value">{{ notes_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.notes') }}">tend</a>
+      <a class="btn-link" href="{{ url_for('admin.notes') }}">Manage</a>
     </article>
 
     <article class="card">
       <h3>Failed Logins</h3>
       <p class="metric-value">{{ failed_logins_count }}</p>
-      <a class="btn-link" href="{{ url_for('admin.login_attempts') }}">view</a>
+      <a class="btn-link" href="{{ url_for('admin.login_attempts') }}">View</a>
     </article>
   </section>
 {% endblock %}

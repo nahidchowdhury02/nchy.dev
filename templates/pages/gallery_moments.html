@@ -6,13 +6,13 @@
 {% block content %}
   <section class="card">
     <h2>Moments</h2>
-    <p>pictures, videos that i have kept; also photography!</p>
+    <p>Pictures and videos from my photography archive.</p>
   </section>
 
   <section class="gallery-detail-grid" aria-label="Moments">
     {% if items %}
       {% for item in items %}
-        <article class="card gallery-detail-tile" data-gallery-item-key="{{ item.id or item.image_url }}">
+        <article class="card gallery-detail-tile" data-gallery-item-key="{{ item.id or item.image_url }}" data-lightbox-caption="{{ item.caption or item.title or 'moment' }}">
           {% if item.image_url %}
             <img src="{{ item.image_url }}" alt="{{ item.title }}" class="tile-media js-expandable-image" loading="lazy" />
             <span class="tile-title">{{ item.title or 'moment' }}</span>
@@ -30,7 +30,7 @@
   </section>
 
   <div class="inline-actions" role="navigation" aria-label="Moments navigation">
-    <a class="btn-link" href="{{ url_for('main.gallery') }}">back gallery</a>
-    <a class="btn-link" href="{{ url_for('main.home') }}">back home</a>
+    <a class="btn-link" href="{{ url_for('main.gallery') }}">Back to Gallery</a>
+    <a class="btn-link" href="{{ url_for('main.home') }}">Back to Home</a>
   </div>
 {% endblock %}
