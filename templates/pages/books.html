@@ -5,7 +5,6 @@
 
 {% block content %}
   <section class="card intro-card">
-    <h2>Library</h2>
     <form method="get" action="{{ url_for('main.books') }}" class="inline-form">
       <input type="search" name="q" value="{{ query or '' }}" placeholder="Search by title or author" aria-label="Search books" />
       <button type="submit">Search</button>
