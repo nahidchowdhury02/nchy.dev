@@ -14,47 +14,47 @@
     <article class="card">
       <h3>GitHub and Research</h3>
       <p class="link-copy">Projects, experiments, and research notes.</p>
-      <a class="btn-link" href="{{ url_for('main.github_research') }}">View</a>
+      <a class="btn-link" href="{{ url_for('main.github_research') }}">VIEW</a>
     </article>
     <article class="card">
       <h3>Gallery</h3>
       <p class="link-copy">Sketches, paintings, and archived moments.</p>
-      <a class="btn-link" href="{{ url_for('main.gallery') }}">View</a>
+      <a class="btn-link" href="{{ url_for('main.gallery') }}">SEE</a>
     </article>
     <article class="card">
       <h3>LIBRARY</h3>
       <p class="link-copy">Books with context and notes.</p>
-      <a class="btn-link" href="{{ url_for('main.books') }}">View</a>
+      <a class="btn-link" href="{{ url_for('main.books') }}">BROWSE</a>
     </article>
     <article class="card">
       <h3>Music List</h3>
       <p class="link-copy">A list of tracks that i love!</p>
-      <a class="btn-link" href="{{ url_for('main.music') }}">Listen</a>
+      <a class="btn-link" href="{{ url_for('main.music') }}">LISTEN</a>
     </article>
     <article class="card">
       <h3>Reading List</h3>
       <p class="link-copy">Current reading progress and notes.</p>
-      <a class="btn-link" href="{{ url_for('main.reading') }}">Open</a>
+      <a class="btn-link" href="{{ url_for('main.reading') }}">OPEN</a>
     </article>
     <article class="card">
       <h3>Fun Stuff</h3>
       <p class="link-copy">side projects including coding, CAD, and 3d prototyping.</p>
-      <a class="btn-link" href="{{ url_for('main.fun') }}">Explore</a>
+      <a class="btn-link" href="{{ url_for('main.fun') }}">EXPLORE</a>
     </article>
     <article class="card">
       <h3>JOURNAL</h3>
       <p class="link-copy">Notes, logs, and development updates.</p>
-      <a class="btn-link" href="{{ url_for('main.notes') }}">Read</a>
+      <a class="btn-link" href="{{ url_for('main.notes') }}">READ</a>
     </article>
     <article class="card">
       <h3>Certification</h3>
       <p class="link-copy">Achievements and credentials.</p>
-      <a class="btn-link" href="{{ url_for('main.certification') }}">View</a>
+      <a class="btn-link" href="{{ url_for('main.certification') }}">VIEW</a>
     </article>
     <article class="card">
       <h3>Contact</h3>
       <p class="link-copy">Get in touch for questions or collaboration.</p>
-      <a class="btn-link" href="{{ url_for('main.contact') }}">Email</a>
+      <a class="btn-link" href="{{ url_for('main.contact') }}">EMAIL</a>
     </article>
   </div>
 </section>
@@ -63,6 +63,7 @@
 {% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    const headerCard = document.querySelector(".app-header");
     const headerTitle = document.querySelector(".app-header h1");
     let hasTyped = false;
 
@@ -71,6 +72,10 @@
         return;
       }
       hasTyped = true;
+      if (headerCard) {
+        headerCard.classList.remove("home-header-lamp");
+      }
+      headerTitle.classList.add("home-title-typing");
       headerTitle.classList.remove("home-title-lamp");
       const fullText = headerTitle.dataset.fullText || headerTitle.textContent || "";
       headerTitle.dataset.fullText = fullText;
@@ -80,10 +85,14 @@
         headerTitle.textContent = fullText.slice(0, i);
         i += 1;
         if (i <= fullText.length) {
-          window.setTimeout(typeTick, 85);
+          window.setTimeout(typeTick, 145);
         } else {
           window.setTimeout(function () {
+            headerTitle.classList.remove("home-title-typing");
             headerTitle.classList.add("home-title-lamp");
+            if (headerCard) {
+              headerCard.classList.add("home-header-lamp");
+            }
           }, 650);
         }
       };
@@ -95,7 +104,7 @@
     if (dismiss && banner) {
       if (headerTitle) {
         headerTitle.dataset.fullText = headerTitle.textContent || "";
-        headerTitle.textContent = "NCHY.DEV";
+        headerTitle.textContent = "A COLLECTION OF THOUGHTS, PROJECTS, AND RESOURCES.";
       }
       dismiss.addEventListener("click", function () {
         banner.remove();
