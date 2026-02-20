@@ -79,6 +79,45 @@
       });
     })();
   </script>
+  <script>
+    (function () {
+      document.addEventListener("DOMContentLoaded", function () {
+        const navPills = document.querySelector(".public-page .nav-pills");
+        const toggle = navPills ? navPills.querySelector(".mobile-nav-toggle") : null;
+        if (!navPills || !toggle) {
+          return;
+        }
+
+        const mobileQuery = window.matchMedia("(max-width: 640px)");
+
+        const syncToggleState = function () {
+          if (!mobileQuery.matches) {
+            navPills.classList.remove("mobile-extra-open");
+            toggle.setAttribute("aria-expanded", "false");
+            return;
+          }
+          const isOpen = navPills.classList.contains("mobile-extra-open");
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        };
+
+        toggle.addEventListener("click", function () {
+          if (!mobileQuery.matches) {
+            return;
+          }
+          navPills.classList.toggle("mobile-extra-open");
+          syncToggleState();
+        });
+
+        if (typeof mobileQuery.addEventListener === "function") {
+          mobileQuery.addEventListener("change", syncToggleState);
+        } else if (typeof mobileQuery.addListener === "function") {
+          mobileQuery.addListener(syncToggleState);
+        }
+
+        syncToggleState();
+      });
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

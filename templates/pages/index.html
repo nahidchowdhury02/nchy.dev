@@ -64,8 +64,16 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const headerTitle = document.querySelector(".app-header h1");
-    if (headerTitle) {
-      const fullText = headerTitle.textContent || "";
+    let hasTyped = false;
+
+    const startHeaderTypewriter = function () {
+      if (!headerTitle || hasTyped) {
+        return;
+      }
+      hasTyped = true;
+      headerTitle.classList.remove("home-title-lamp");
+      const fullText = headerTitle.dataset.fullText || headerTitle.textContent || "";
+      headerTitle.dataset.fullText = fullText;
       headerTitle.textContent = "";
       let i = 0;
       const typeTick = function () {
@@ -73,19 +81,29 @@
         i += 1;
         if (i <= fullText.length) {
           window.setTimeout(typeTick, 85);
+        } else {
+          window.setTimeout(function () {
+            headerTitle.classList.add("home-title-lamp");
+          }, 650);
         }
       };
       typeTick();
-    }
+    };
 
     const dismiss = document.getElementById("notice-dismiss");
     const banner = document.getElementById("notice-banner");
     if (dismiss && banner) {
+      if (headerTitle) {
+        headerTitle.dataset.fullText = headerTitle.textContent || "";
+        headerTitle.textContent = "NCHY.DEV";
+      }
       dismiss.addEventListener("click", function () {
         banner.remove();
+        startHeaderTypewriter();
       });
+    } else {
+      startHeaderTypewriter();
     }
-
   });
 </script>
 {% endblock %}
