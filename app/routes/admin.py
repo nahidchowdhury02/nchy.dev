@@ -12,6 +12,7 @@ from ..services.auth_service import AuthService
 from ..services.books_service import BooksService
 from ..services.certification_service import CertificationService
 from ..services.gallery_service import GalleryService
+from ..services.github_research_service import GithubResearchService
 from ..services.music_service import MusicService
 from ..services.notes_service import NotesService
 from ..services.reading_service import ReadingService
@@ -38,6 +39,10 @@ def _certification_service() -> CertificationService:
 
 def _notes_service() -> NotesService:
     return NotesService(get_db())
+
+
+def _github_research_service() -> GithubResearchService:
+    return GithubResearchService(get_db())
 
 
 def _music_service() -> MusicService:
@@ -189,6 +194,7 @@ def manage():
         reading_count=_reading_service().count_entries(),
         certification_count=_certification_service().count_badges(),
         gallery_count=gallery_service.count_items(),
+        github_research_count=_github_research_service().count_items(),
         music_count=_music_service().count_links(),
         notes_count=_notes_service().count_entries(),
         failed_logins_count=_auth_service().count_failed_admin_logins(),
@@ -340,7 +346,10 @@ def reading():
 
     if request.method == "POST":
         try:
-            created = reading_service.add_book(request.form.get("book_id", ""))
+            created = reading_service.add_book(
+                request.form.get("book_id", ""),
+                reading_note=request.form.get("reading_note", ""),
+            )
             _audit_repo().log(
                 actor=_admin_actor(),
                 action="reading.create",
@@ -359,6 +368,32 @@ def reading():
     books = books_service.list_admin_books(query=query, limit_raw="200")
     entries = reading_service.list_admin_entries(limit_raw="200")
     return render_template("admin/manage/reading.html", books=books, entries=entries, query=query)
+
+
+@admin_bp.route("/reading/<entry_id>", methods=["POST"])
+@require_admin
+def reading_update(entry_id):
+    query = (request.form.get("q") or "").strip()
+    reading_service = _reading_service()
+
+    try:
+        updated = reading_service.update_entry_note(entry_id, request.form.get("reading_note", ""))
+        if not updated:
+            flash("Reading list entry not found", "error")
+        else:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="reading.update",
+                entity="reading_item",
+                entity_id=entry_id,
+            )
+            flash("Reading note updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+
+    if query:
+        return redirect(url_for("admin.reading", q=query))
+    return redirect(url_for("admin.reading"))
 
 
 @admin_bp.route("/reading/<entry_id>/delete", methods=["POST"])
@@ -724,3 +759,71 @@ def music_delete(link_id):
     except RuntimeError as exc:
         flash(str(exc), "error")
     return redirect(url_for("admin.music"))
+
+
+@admin_bp.route("/github-research", methods=["GET", "POST"])
+@admin_bp.route("/manage/github-research", methods=["GET", "POST"])
+@require_admin
+def github_research():
+    github_research_service = _github_research_service()
+
+    if request.method == "POST":
+        try:
+            created = github_research_service.create_item(request.form, request.files.get("pdf_file"))
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="github_research.create",
+                entity="github_research_item",
+                entity_id=created.get("id", ""),
+                metadata={"kind": created.get("kind", "")},
+            )
+            flash("Item created", "success")
+            return redirect(url_for("admin.github_research"))
+        except (ValueError, RuntimeError) as exc:
+            flash(str(exc), "error")
+
+    items = github_research_service.list_admin_items()
+    return render_template("admin/github_research.html", items=items)
+
+
+@admin_bp.route("/github-research/<item_id>", methods=["POST"])
+@require_admin
+def github_research_update(item_id):
+    github_research_service = _github_research_service()
+    try:
+        updated = github_research_service.update_item(item_id, request.form, request.files.get("pdf_file"))
+        if not updated:
+            flash("Item not found", "error")
+        else:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="github_research.update",
+                entity="github_research_item",
+                entity_id=item_id,
+                metadata={"kind": updated.get("kind", "")},
+            )
+            flash("Item updated", "success")
+    except (ValueError, RuntimeError) as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.github_research"))
+
+
+@admin_bp.route("/github-research/<item_id>/delete", methods=["POST"])
+@require_admin
+def github_research_delete(item_id):
+    github_research_service = _github_research_service()
+    try:
+        deleted = github_research_service.delete_item(item_id)
+        if deleted:
+            _audit_repo().log(
+                actor=_admin_actor(),
+                action="github_research.delete",
+                entity="github_research_item",
+                entity_id=item_id,
+            )
+            flash("Item removed", "success")
+        else:
+            flash("Item not found", "error")
+    except RuntimeError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("admin.github_research"))

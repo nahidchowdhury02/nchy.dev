@@ -10,10 +10,14 @@ class NotesRepository:
     def available(self) -> bool:
         return self.collection is not None
 
-    def list_public(self, limit: int = 50):
+    def list_public(self, limit: int = 50, kind: str = "", sort_order: int = -1):
         if self.collection is None:
             return []
-        docs = self.collection.find({"is_published": True}).sort("created_at", -1).limit(limit)
+        query = {"is_published": True}
+        normalized_kind = (kind or "").strip().lower()
+        if normalized_kind in {"note", "log"}:
+            query["kind"] = normalized_kind
+        docs = self.collection.find(query).sort("created_at", sort_order).limit(limit)
         return [serialize_doc(doc) for doc in docs]
 
     def list_admin(self, limit: int = 200):

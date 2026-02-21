@@ -67,16 +67,26 @@
     const headerTitle = document.querySelector(".app-header h1");
     let hasTyped = false;
 
+    const setLampState = function (isOn) {
+      if (!headerCard || !headerTitle) {
+        return;
+      }
+      if (isOn) {
+        headerCard.classList.add("home-header-lamp");
+        headerTitle.classList.add("home-title-lamp");
+      } else {
+        headerCard.classList.remove("home-header-lamp");
+        headerTitle.classList.remove("home-title-lamp");
+      }
+    };
+
     const startHeaderTypewriter = function () {
       if (!headerTitle || hasTyped) {
         return;
       }
       hasTyped = true;
-      if (headerCard) {
-        headerCard.classList.remove("home-header-lamp");
-      }
+      setLampState(false);
       headerTitle.classList.add("home-title-typing");
-      headerTitle.classList.remove("home-title-lamp");
       const fullText = headerTitle.dataset.fullText || headerTitle.textContent || "";
       headerTitle.dataset.fullText = fullText;
       headerTitle.textContent = "";
@@ -89,22 +99,31 @@
         } else {
           window.setTimeout(function () {
             headerTitle.classList.remove("home-title-typing");
-            headerTitle.classList.add("home-title-lamp");
-            if (headerCard) {
-              headerCard.classList.add("home-header-lamp");
-            }
+            setLampState(true);
           }, 650);
         }
       };
       typeTick();
     };
 
+    const toggleLamp = function () {
+      if (!hasTyped || !headerCard || !headerTitle) {
+        return;
+      }
+      const lampIsOn = headerCard.classList.contains("home-header-lamp") && headerTitle.classList.contains("home-title-lamp");
+      setLampState(!lampIsOn);
+    };
+
+    if (headerCard) {
+      headerCard.addEventListener("click", toggleLamp);
+    }
+
     const dismiss = document.getElementById("notice-dismiss");
     const banner = document.getElementById("notice-banner");
     if (dismiss && banner) {
       if (headerTitle) {
         headerTitle.dataset.fullText = headerTitle.textContent || "";
-        headerTitle.textContent = "A COLLECTION OF THOUGHTS, PROJECTS, AND RESOURCES.";
+        headerTitle.textContent = "PUBLIC ARCHIVE OF N";
       }
       dismiss.addEventListener("click", function () {
         banner.remove();
@@ -116,3 +135,4 @@
   });
 </script>
 {% endblock %}
+

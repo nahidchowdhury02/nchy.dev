@@ -66,3 +66,23 @@ def test_reading_page_two_renders_and_has_previous(app, client):
     html = response.get_data(as_text=True)
     assert "Page 2 of 2" in html
     assert 'href="/reading?page=1"' in html
+
+
+def test_reading_page_shows_reading_note(app, client):
+    book_ids = seed_many_books(app, total=1)
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    db.reading_list.insert_one(
+        {
+            "book_id": book_ids[0],
+            "reading_note": "halfway through this book",
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+
+    response = client.get("/reading")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Reading note:" in html
+    assert "halfway through this book" in html

@@ -27,6 +27,11 @@
       </div>
 
       <div class="form-field form-field-full">
+        <label for="reading_note">Small Reading Note</label>
+        <textarea id="reading_note" name="reading_note" rows="3" maxlength="280" placeholder="Quick thought, progress, or reminder..."></textarea>
+      </div>
+
+      <div class="form-field form-field-full">
         <button type="submit">Add to Reading List</button>
       </div>
     </form>
@@ -47,6 +52,18 @@
           {% endif %}
 
           <p class="small-note">Added {{ item.created_at|pretty_date }}</p>
+
+          <form method="post" action="{{ url_for('admin.reading_update', entry_id=item.id) }}" class="form-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="q" value="{{ query }}" />
+            <div class="form-field form-field-full">
+              <label for="reading_note_{{ item.id }}">Small Reading Note</label>
+              <textarea id="reading_note_{{ item.id }}" name="reading_note" rows="3" maxlength="280" placeholder="Add a short note...">{{ item.reading_note }}</textarea>
+            </div>
+            <div class="form-field form-field-full">
+              <button type="submit">Save Note</button>
+            </div>
+          </form>
 
           <form method="post" action="{{ url_for('admin.reading_delete', entry_id=item.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />

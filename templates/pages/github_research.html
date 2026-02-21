@@ -5,6 +5,52 @@
 
 {% block content %}
   <section class="card intro-card">
-    <p>Projects, experiments, and research notes.</p>
+    <p>Some of my projects from GitHub and research PDFs</p>
+  </section>
+
+  <section class="card resource-section">
+    <h2>Repositories</h2>
+    <div class="gallery-detail-grid" aria-label="Repository cards">
+      {% for item in repositories %}
+        <article class="card gallery-detail-tile sketch-tile resource-tile">
+          {% if item.repo_preview_image %}
+            <div class="sketch-media-wrap">
+              <img src="{{ item.repo_preview_image }}" alt="Preview of {{ item.repo_path or item.title }}" class="tile-media" loading="lazy" />
+            </div>
+          {% else %}
+            <span class="tile-title-empty">{{ item.title }}</span>
+          {% endif %}
+          <span class="sketch-caption">{{ item.title }}</span>
+          {% if item.repo_path %}<p class="small-note">{{ item.repo_path }}</p>{% endif %}
+          {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+          <a class="btn-link" href="{{ item.url }}" target="_blank" rel="noreferrer noopener">View on GitHub</a>
+        </article>
+      {% else %}
+        <article class="card gallery-detail-tile"><span class="tile-title-empty">No repositories published yet.</span></article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card resource-section">
+    <h2>Research PDFs</h2>
+    <div class="gallery-detail-grid" aria-label="Research PDF cards">
+      {% for item in research_pdfs %}
+        <article class="card gallery-detail-tile sketch-tile resource-tile">
+          <div class="pdf-preview-wrap">
+            <iframe
+              src="{{ item.url }}#toolbar=0&navpanes=0&scrollbar=1"
+              title="PDF preview for {{ item.title }}"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+            ></iframe>
+          </div>
+          <span class="sketch-caption">{{ item.title }}</span>
+          {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+          <a class="btn-link" href="{{ item.url }}" target="_blank" rel="noreferrer noopener">Open PDF</a>
+        </article>
+      {% else %}
+        <article class="card gallery-detail-tile"><span class="tile-title-empty">No research PDFs published yet.</span></article>
+      {% endfor %}
+    </div>
   </section>
 {% endblock %}

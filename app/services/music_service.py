@@ -12,10 +12,13 @@ class MusicService:
     def __init__(self, db):
         self.repo = MusicRepository(db)
 
-    def list_public_links(self):
+    def list_public_links(self, sort: str = "newest"):
         if not self.repo.available():
             return []
-        return [self._serialize_link(link) for link in self.repo.list_public()]
+        normalized_sort = (sort or "").strip().lower()
+        if normalized_sort not in {"newest", "oldest"}:
+            normalized_sort = "newest"
+        return [self._serialize_link(link) for link in self.repo.list_public(sort=normalized_sort)]
 
     def list_admin_links(self):
         if not self.repo.available():
@@ -95,4 +98,3 @@ class MusicService:
             if match:
                 return match.group(1)
         return ""
-

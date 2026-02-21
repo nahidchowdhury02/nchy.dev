@@ -4,8 +4,32 @@
 {% block header_title %}Music{% endblock %}
 
 {% block content %}
-  <section class="card intro-card">
-    <p>songs that i like, that i love and that makes life feel like a movie</p>
+  <section class="card intro-card music-toolbar-card">
+    <div class="music-toolbar-head">
+      <p>songs that i like, that i love and that makes life feel like a movie</p>
+      <div class="music-sort-icons" aria-label="Sort music list">
+        <a
+          class="notes-icon-btn {% if selected_sort == 'newest' %}is-active{% endif %}"
+          href="{{ url_for('main.music', sort='newest') }}"
+          title="Newest first"
+          aria-label="Sort newest first"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M12 5v14M7 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <a
+          class="notes-icon-btn {% if selected_sort == 'oldest' %}is-active{% endif %}"
+          href="{{ url_for('main.music', sort='oldest') }}"
+          title="Oldest first"
+          aria-label="Sort oldest first"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M12 5v14M7 14l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
   </section>
 
   <section class="card-grid" aria-label="Music embeds">

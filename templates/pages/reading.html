@@ -18,6 +18,9 @@
         <h3>{{ book.title or book.original_title }}</h3>
         <p class="book-meta">{{ (book.authors or [])|join(', ') or 'unknown author' }}</p>
         <p class="book-meta">{{ book.first_publish_year or 'year unknown' }}</p>
+        {% if book.reading_note %}
+          <p><strong>Reading note:</strong> {{ book.reading_note }}</p>
+        {% endif %}
 
         {% if book.description %}
           <p>{{ book.description[:220] }}{% if book.description|length > 220 %}...{% endif %}</p>

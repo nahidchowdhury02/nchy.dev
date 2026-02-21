@@ -2,6 +2,7 @@ from .auth_service import AuthService
 from .books_service import BooksService
 from .certification_service import CertificationService
 from .gallery_service import GalleryService
+from .github_research_service import GithubResearchService
 from .music_service import MusicService
 from .notes_service import NotesService
 from .reading_service import ReadingService
@@ -12,6 +13,7 @@ __all__ = [
     "BooksService",
     "CertificationService",
     "GalleryService",
+    "GithubResearchService",
     "MusicService",
     "NotesService",
     "ReadingService",

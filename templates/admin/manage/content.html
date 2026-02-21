@@ -52,6 +52,12 @@
     </article>
 
     <article class="card">
+      <h3>GitHub/Research</h3>
+      <p class="metric-value">{{ github_research_count }}</p>
+      <a class="btn-link" href="{{ url_for('admin.github_research') }}">Manage</a>
+    </article>
+
+    <article class="card">
       <h3>Certifications</h3>
       <p class="metric-value">{{ certification_count }}</p>
       <a class="btn-link" href="{{ url_for('admin.certifications') }}">Manage</a>

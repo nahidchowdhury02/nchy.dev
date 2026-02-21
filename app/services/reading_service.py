@@ -9,6 +9,8 @@ from ..utils import maybe_object_id, parse_positive_int
 
 
 class ReadingService:
+    MAX_READING_NOTE_LENGTH = 280
+
     def __init__(self, db):
         self.repo = ReadingRepository(db)
         self.books_repo = BooksRepository(db)
@@ -32,7 +34,7 @@ class ReadingService:
         for entry in entries:
             book_id = entry.get("book_id")
             normalized_book_id = str(book_id) if book_id is not None else ""
-            items.append(self._to_public_book_payload(books_by_id.get(normalized_book_id)))
+            items.append(self._to_public_book_payload(books_by_id.get(normalized_book_id), entry=entry))
         items = [item for item in items if item]
 
         return {
@@ -55,7 +57,7 @@ class ReadingService:
         books_by_id = self._books_map(entries)
         return [self._to_admin_entry_payload(entry, books_by_id=books_by_id) for entry in entries]
 
-    def add_book(self, book_id: str):
+    def add_book(self, book_id: str, reading_note: str = ""):
         if not self.repo.available() or not self.books_repo.available():
             raise RuntimeError("MongoDB is required for reading list updates")
 
@@ -71,9 +73,11 @@ class ReadingService:
             raise ValueError("Book not found")
 
         now = datetime.now(timezone.utc)
+        note = self._normalize_reading_note(reading_note)
         entry = self.repo.insert_entry(
             {
                 "book_id": object_id,
+                "reading_note": note,
                 "created_at": now,
                 "updated_at": now,
             }
@@ -83,6 +87,16 @@ class ReadingService:
             entry,
             books_by_id={existing_book["id"]: existing_book},
         )
+
+    def update_entry_note(self, entry_id: str, reading_note: str):
+        if not self.repo.available():
+            raise RuntimeError("MongoDB is required for reading list updates")
+
+        payload = {
+            "reading_note": self._normalize_reading_note(reading_note),
+            "updated_at": datetime.now(timezone.utc),
+        }
+        return self.repo.update_entry(entry_id, payload)
 
     def remove_entry(self, entry_id: str) -> bool:
         if not self.repo.available():
@@ -114,7 +128,7 @@ class ReadingService:
             if isinstance(book, dict) and isinstance(book.get("id"), str)
         }
 
-    def _to_public_book_payload(self, book: dict[str, Any] | None):
+    def _to_public_book_payload(self, book: dict[str, Any] | None, entry: dict[str, Any] | None = None):
         if not book:
             return None
 
@@ -132,6 +146,7 @@ class ReadingService:
             "first_publish_year": book.get("first_publish_year"),
             "cover_url": book.get("cover_url"),
             "description": book.get("description", ""),
+            "reading_note": (entry or {}).get("reading_note", ""),
             "updated_at": updated_at,
         }
 
@@ -157,9 +172,16 @@ class ReadingService:
         return {
             "id": entry.get("id"),
             "book_id": normalized_book_id,
+            "reading_note": (entry.get("reading_note") or "").strip(),
             "created_at": created_at,
             "book": self._to_admin_book_payload(books_by_id.get(normalized_book_id)),
         }
+
+    def _normalize_reading_note(self, note: str | None):
+        value = (note or "").strip()
+        if len(value) > self.MAX_READING_NOTE_LENGTH:
+            raise ValueError(f"Reading note must be {self.MAX_READING_NOTE_LENGTH} characters or fewer")
+        return value
 
     @staticmethod
     def _empty_page(per_page: int):

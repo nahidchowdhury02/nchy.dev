@@ -224,17 +224,58 @@ def test_admin_reading_add_and_remove(app, client):
     login(client)
     add_response = client.post(
         "/admin/reading",
-        data={"book_id": str(inserted.inserted_id)},
+        data={"book_id": str(inserted.inserted_id), "reading_note": "chapter 1 done"},
         follow_redirects=False,
     )
     assert add_response.status_code == 302
 
     entry = db.reading_list.find_one({"book_id": inserted.inserted_id})
     assert entry is not None
+    assert entry["reading_note"] == "chapter 1 done"
 
     remove_response = client.post(f"/admin/reading/{entry['_id']}/delete", follow_redirects=False)
     assert remove_response.status_code == 302
     assert db.reading_list.find_one({"_id": entry["_id"]}) is None
+
+
+def test_admin_reading_update_note(app, client):
+    db = app.extensions["mongo_db"]
+    now = datetime.now(timezone.utc)
+    inserted_book = db.books.insert_one(
+        {
+            "slug": "reading-note-book",
+            "original_title": "Reading Note Book",
+            "title": "Reading Note Book",
+            "subtitle": "",
+            "authors": ["Reader Author"],
+            "first_publish_year": 2024,
+            "cover_url": "https://example.com/reading-note.jpg",
+            "description": "reading note test",
+            "google_info": None,
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+    inserted_entry = db.reading_list.insert_one(
+        {
+            "book_id": inserted_book.inserted_id,
+            "reading_note": "before update",
+            "created_at": now,
+            "updated_at": now,
+        }
+    )
+
+    login(client)
+    response = client.post(
+        f"/admin/reading/{inserted_entry.inserted_id}",
+        data={"reading_note": "after update"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+
+    updated = db.reading_list.find_one({"_id": inserted_entry.inserted_id})
+    assert updated is not None
+    assert updated["reading_note"] == "after update"
 
 
 def test_admin_gallery_create_and_delete(app, client):

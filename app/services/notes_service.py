@@ -15,11 +15,21 @@ class NotesService:
     def __init__(self, db):
         self.repo = NotesRepository(db)
 
-    def list_public_entries(self, limit_raw: str | None = None):
+    def list_public_entries(self, limit_raw: str | None = None, kind: str = "", sort: str = "newest"):
         limit = parse_positive_int(limit_raw, default=50, max_value=200)
         if not self.repo.available():
             return []
-        return [self._serialize_entry(entry) for entry in self.repo.list_public(limit=limit)]
+        normalized_kind = (kind or "").strip().lower()
+        if normalized_kind not in VALID_KINDS:
+            normalized_kind = ""
+
+        normalized_sort = (sort or "").strip().lower()
+        sort_order = 1 if normalized_sort == "oldest" else -1
+
+        return [
+            self._serialize_entry(entry)
+            for entry in self.repo.list_public(limit=limit, kind=normalized_kind, sort_order=sort_order)
+        ]
 
     def list_admin_entries(self, limit_raw: str | None = None):
         limit = parse_positive_int(limit_raw, default=200, max_value=500)

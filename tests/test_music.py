@@ -1,3 +1,6 @@
+from datetime import datetime, timezone
+
+
 def login(client):
     username = client.application.config["ADMIN_USERNAME"]
     password = client.application.config["ADMIN_PASSWORD"]
@@ -64,3 +67,32 @@ def test_admin_music_create_and_update(client, app):
     assert updated["title"] == "Late Song Updated"
     assert updated["youtube_id"] == "9bZkp7q19f0"
 
+
+def test_music_page_supports_oldest_sort(app, client):
+    db = app.extensions["mongo_db"]
+    db.music_links.insert_many(
+        [
+            {
+                "title": "New Song",
+                "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                "youtube_id": "dQw4w9WgXcQ",
+                "sort_order": 0,
+                "is_published": True,
+                "created_at": datetime(2025, 2, 1, tzinfo=timezone.utc),
+            },
+            {
+                "title": "Old Song",
+                "youtube_url": "https://www.youtube.com/watch?v=9bZkp7q19f0",
+                "youtube_id": "9bZkp7q19f0",
+                "sort_order": 0,
+                "is_published": True,
+                "created_at": datetime(2024, 1, 1, tzinfo=timezone.utc),
+            },
+        ]
+    )
+
+    response = client.get("/music?sort=oldest")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert html.index("Old Song") < html.index("New Song")
+    assert "music-sort-icons" in html

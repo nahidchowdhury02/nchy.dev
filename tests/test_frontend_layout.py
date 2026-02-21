@@ -6,6 +6,7 @@ import pytest
 PUBLIC_ROUTES = [
     "/",
     "/books",
+    "/github-research",
     "/gallery",
     "/gallery/sketches",
     "/gallery/moments",
@@ -22,6 +23,7 @@ ADMIN_ROUTES = [
     "/admin/books",
     "/admin/reading",
     "/admin/gallery",
+    "/admin/github-research",
     "/admin/music",
     "/admin/manage/notes",
 ]

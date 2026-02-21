@@ -4,8 +4,55 @@
 {% block header_title %}Notes and Logs{% endblock %}
 
 {% block content %}
-  <section class="card intro-card">
-    <p>why something became what it is and other ramblings in my head</p>
+  <section class="card notes-toolbar-card">
+    <div class="notes-toolbar-head">
+      <p>why something became what it is and other ramblings in my head</p>
+      <div class="notes-kind-icons" aria-label="Filter notes and logs">
+        <a
+          class="notes-icon-btn {% if selected_kind == '' %}is-active{% endif %}"
+          href="{{ url_for('main.notes', sort=selected_sort) }}"
+          title="Show all"
+          aria-label="Show all entries"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            <path d="M8 10h8M8 14h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </a>
+        <a
+          class="notes-icon-btn {% if selected_kind == 'note' %}is-active{% endif %}"
+          href="{{ url_for('main.notes', kind='note', sort=selected_sort) }}"
+          title="Only notes"
+          aria-label="Show only notes"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M7 4h8l4 4v12H7z" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+            <path d="M15 4v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </a>
+        <a
+          class="notes-icon-btn {% if selected_kind == 'log' %}is-active{% endif %}"
+          href="{{ url_for('main.notes', kind='log', sort=selected_sort) }}"
+          title="Only logs"
+          aria-label="Show only logs"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path d="M5 6h14v12H5z" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+            <path d="M9 3v6M15 3v6M8 13h8M8 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('main.notes') }}" class="notes-sort-form">
+      {% if selected_kind %}
+        <input type="hidden" name="kind" value="{{ selected_kind }}" />
+      {% endif %}
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest first</option>
+        <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+      </select>
+    </form>
   </section>
 
   <section class="card-grid" aria-label="Public notes and logs">
